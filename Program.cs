@@ -16,78 +16,85 @@ class Client
     private TcpClient tcpClient2;
     private NetworkStream clientStream;
 
-    public void Connect(int ipvx,string serverIP, int serverPort)
-    {
-        tcpClient = new TcpClient();
-        tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
-        if (ipvx == 4)
+public void Connect(int ipvx, string serverIP, int serverPort)
+{
+    tcpClient = new TcpClient();
+    tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
+    if (ipvx == 4)
         tcpClient.Connect(serverIP, serverPort);
-        else if (ipvx == 6)
+    else if (ipvx == 6)
         tcpClient2.Connect(serverIP, serverPort);
-        else
+    else
         Console.WriteLine("呃，好像没有这种IP协议");
 
-        clientStream = tcpClient.GetStream();
+    clientStream = tcpClient.GetStream();
 
-        // 用户输入用户名，如果没有输入则使用计算机名称
-        Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
-        string username = Console.ReadLine();
+    // 用户输入用户名，如果没有输入则使用计算机名称
+    Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
+    string username = Console.ReadLine();
 
-        if (string.IsNullOrEmpty(username))
-            username = Environment.MachineName;
+    if (string.IsNullOrEmpty(username))
+        username = Environment.MachineName;
 
-        // 发送用户名到服务器
-        SendMessage(username);
+    // 发送用户名到服务器
+    SendMessage(username);
 
-        Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
-        receiveThread.Start();
+    Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
+    receiveThread.Start();
 
-        Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+    Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
 
-        while (true)
-        {
-            Console.Write($"{username}&{DateTime.Now}$> ");
-            string message = Console.ReadLine();
-
-            if (message.ToLower() == "exit")
-            {
-                SendMessage("我下线了啊拜拜");
-                tcpClient.Close();
-                break;
-            }
-
-            SendMessage(message);
-        }
-    }
-
-    private void ReceiveMessage()
+    while (true)
     {
-        byte[] message = new byte[32567];
-        int bytesRead;
+        Console.Write($"{username}&{DateTime.Now}$> ");
+        string message = Console.ReadLine();
 
-        while (true)
+        if (message.ToLower() == "exit")
         {
-            bytesRead = 0;
-
-            try
-            {
-                bytesRead = clientStream.Read(message, 0, 32567);
-            }
-            catch
-            {
-                break;
-            }
-
-            if (bytesRead == 0)
-                break;
-
-            string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-            Console.Write("\a"+DateTime.Now+" > "+data);
+            SendMessage("我下线了啊拜拜");
+            tcpClient.Close();
+            break;
         }
 
-        Console.WriteLine("已断开与服务器的连接。如服务器多次连接不上，可能已被封禁");
-        tcpClient.Close();
+        SendMessage(message);
     }
+}
+
+private void ReceiveMessage()
+{
+    byte[] message = new byte[32567];
+    int bytesRead;
+
+    List<string> messages = new List<string>();
+
+    while (true)
+    {
+        bytesRead = 0;
+
+        try
+        {
+            bytesRead = clientStream.Read(message, 0, 32567);
+        }
+        catch
+        {
+            break;
+        }
+
+        if (bytesRead == 0)
+            break;
+
+        string data = Encoding.UTF8.GetString(message, 0, bytesRead);
+        messages.Add($"{DateTime.Now} > {data}");
+
+        // 清除控制台并重新打印所有消息
+        Console.Clear();
+        foreach (var msg in messages)
+        {
+            Console.WriteLine(msg);
+        }
+        Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+    }
+}
 
     private void SendMessage(string message)
     {
