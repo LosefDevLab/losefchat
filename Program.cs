@@ -39,6 +39,7 @@ class Client
 
         while (true)
         {
+            Console.Write($"{username}&{DateTime.Now}$> ");
             string message = Console.ReadLine();
 
             if (message.ToLower() == "exit")
@@ -137,8 +138,8 @@ class Server
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
             // User connected to the server message
-            byte[] connectionMessageBytes = new byte[8192];
-            int bytesRead = tcpClient.GetStream().Read(connectionMessageBytes, 0, 8192);
+            byte[] connectionMessageBytes = new byte[32567];
+            int bytesRead = tcpClient.GetStream().Read(connectionMessageBytes, 0, 32567);
             string connectionMessage = Encoding.UTF8.GetString(connectionMessageBytes, 0, bytesRead);
 
             // Create client info object to store client information
@@ -147,7 +148,7 @@ class Server
             // Check if in banned list
             if (bannedUsersSet.Contains(clientInfo.Username))
             {
-                Console.WriteLine($"LosefChat拒绝了一个封禁用户的连接请求: '{clientInfo.Username}' 好像不知道他在封禁名单里面.");
+                Console.WriteLine($"拒绝了一个封禁用户的连接请求: '{clientInfo.Username}' 好像不知道他在封禁名单里面.");
                 tcpClient.Close();
                 continue;
             }
@@ -166,7 +167,7 @@ class Server
             }
 
             // Broadcast new user joined message
-            BroadcastMessage($"{clientInfo.Username} joined the server");
+            BroadcastMessage($"{clientInfo.Username} 加入了服务器");
             // Start a new thread to handle client communication
             Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientCommunication));
             clientThread.Start(clientInfo);
@@ -189,7 +190,7 @@ class Server
 
         Log($"用户 '{clientInfo.Username}' 连接到服务器.");
 
-        byte[] messageBytes = new byte[8192];
+        byte[] messageBytes = new byte[32567];
         int bytesRead;
 
         while (true)
@@ -198,7 +199,7 @@ class Server
 
             try
             {
-                bytesRead = clientStream.Read(messageBytes, 0, 8192);
+                bytesRead = clientStream.Read(messageBytes, 0, 32567);
             }
             catch
             {
@@ -443,6 +444,7 @@ class Server
         using (StreamWriter logFile = new StreamWriter(logFilePath, true))
         {
             logFile.WriteLine($"{DateTime.Now}: {message}");
+            Console.WriteLine($"{DateTime.Now}: {message}");
         }
     }
 
