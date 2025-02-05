@@ -13,12 +13,19 @@ using System.Net;
 class Client
 {
     private TcpClient tcpClient;
+    private TcpClient tcpClient2;
     private NetworkStream clientStream;
 
-    public void Connect(string serverIP, int serverPort)
+    public void Connect(int ipvx,string serverIP, int serverPort)
     {
         tcpClient = new TcpClient();
+        tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
+        if (ipvx == 4)
         tcpClient.Connect(serverIP, serverPort);
+        else if (ipvx == 6)
+        tcpClient2.Connect(serverIP, serverPort);
+        else
+        Console.WriteLine("呃，好像没有这种IP协议");
 
         clientStream = tcpClient.GetStream();
 
@@ -75,7 +82,7 @@ class Client
                 break;
 
             string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-            Console.WriteLine(data);
+            Console.WriteLine(DateTime.Now+" > "+data);
         }
 
         Console.WriteLine("已断开与服务器的连接。如服务器多次连接不上，可能已被封禁");
@@ -410,6 +417,7 @@ class Server
     {
         while (true)
         {
+            Console.Write($"Server&{DateTime.Now}#> ");
             string input = Console.ReadLine();
 
             if (input.StartsWith("/kick"))
@@ -489,6 +497,9 @@ class 程序
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
         {
+            Console.Write("你要用ipv4协议，还是用ipv6协议？(输入4或者6):");
+            int 选择 = int.Parse(Console.ReadLine());
+
             Console.Write("请输入服务器 IP 地址: ");
             string 服务器IP = Console.ReadLine();
 
@@ -496,7 +507,7 @@ class 程序
             int 服务器端口号 = int.Parse(Console.ReadLine());
 
             Client 客户端 = new Client();
-            客户端.Connect(服务器IP, 服务器端口号);
+            客户端.Connect(选择,服务器IP, 服务器端口号);
         }
         if (choose == 2)
         {
