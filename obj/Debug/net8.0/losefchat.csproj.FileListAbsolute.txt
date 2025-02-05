@@ -1,0 +1,15 @@
+d:\.工作文件\VS\losefchat\bin\Debug\net8.0\losefchat.exe
+d:\.工作文件\VS\losefchat\bin\Debug\net8.0\losefchat.deps.json
+d:\.工作文件\VS\losefchat\bin\Debug\net8.0\losefchat.runtimeconfig.json
+d:\.工作文件\VS\losefchat\bin\Debug\net8.0\losefchat.dll
+d:\.工作文件\VS\losefchat\bin\Debug\net8.0\losefchat.pdb
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.GeneratedMSBuildEditorConfig.editorconfig
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.AssemblyInfoInputs.cache
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.AssemblyInfo.cs
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.csproj.CoreCompileInputs.cache
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.sourcelink.json
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.dll
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\refint\losefchat.dll
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.pdb
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\losefchat.genruntimeconfig.cache
+d:\.工作文件\VS\losefchat\obj\Debug\net8.0\ref\losefchat.dll

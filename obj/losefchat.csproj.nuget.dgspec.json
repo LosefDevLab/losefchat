@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\.工作文件\\VS\\losefchat\\losefchat.csproj": {}
+    "d:\\.工作文件\\VS\\losefchat\\losefchat.csproj": {}
   },
   "projects": {
-    "D:\\.工作文件\\VS\\losefchat\\losefchat.csproj": {
+    "d:\\.工作文件\\VS\\losefchat\\losefchat.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\.工作文件\\VS\\losefchat\\losefchat.csproj",
+        "projectUniqueName": "d:\\.工作文件\\VS\\losefchat\\losefchat.csproj",
         "projectName": "losefchat",
-        "projectPath": "D:\\.工作文件\\VS\\losefchat\\losefchat.csproj",
+        "projectPath": "d:\\.工作文件\\VS\\losefchat\\losefchat.csproj",
         "packagesPath": "C:\\Users\\82241\\.nuget\\packages\\",
-        "outputPath": "D:\\.工作文件\\VS\\losefchat\\obj\\",
+        "outputPath": "d:\\.工作文件\\VS\\losefchat\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\VSd2\\NuGetPackages"
