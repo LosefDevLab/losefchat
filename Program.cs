@@ -42,11 +42,11 @@ public void Connect(int ipvx, string serverIP, int serverPort)
     Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
     receiveThread.Start();
 
+    // 显示连接成功提示信息
     Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
 
     while (true)
     {
-        Console.Write($"{username}&{DateTime.Now}$> ");
         string message = Console.ReadLine();
 
         if (message.ToLower() == "exit")
@@ -66,6 +66,7 @@ private void ReceiveMessage()
     int bytesRead;
 
     List<string> messages = new List<string>();
+    bool connectionMessageShown = false;
 
     while (true)
     {
@@ -84,7 +85,7 @@ private void ReceiveMessage()
             break;
 
         string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-        messages.Add($"{DateTime.Now} > {data}");
+        messages.Add($"\a{DateTime.Now} > {data}");
 
         // 清除控制台并重新打印所有消息
         Console.Clear();
@@ -92,7 +93,12 @@ private void ReceiveMessage()
         {
             Console.WriteLine(msg);
         }
-        Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+
+        if (!connectionMessageShown)
+        {
+            Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+            connectionMessageShown = true;
+        }
     }
 }
 
@@ -424,7 +430,6 @@ class Server
     {
         while (true)
         {
-            Console.Write($"Server&{DateTime.Now}#> ");
             string input = Console.ReadLine();
 
             if (input.StartsWith("/kick"))
@@ -459,7 +464,7 @@ class Server
         using (StreamWriter logFile = new StreamWriter(logFilePath, true))
         {
             logFile.WriteLine($"{DateTime.Now}: {message}");
-            Console.WriteLine($"{DateTime.Now}: {message}");
+            Console.WriteLine($"\a{DateTime.Now}: {message}");
         }
     }
 
