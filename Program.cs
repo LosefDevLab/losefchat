@@ -477,3 +477,36 @@ class Server
         public string ConnectionMessage { get; set; }
     }
 }
+
+class 程序
+{
+    static void Main()
+    {
+        Console.WriteLine("欢迎使用LosefChat v0.1.d1.b3\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        
+        int choose = int.Parse(Console.ReadLine());
+        if (choose == 1)
+        {
+            Console.Write("请输入服务器 IP 地址: ");
+            string 服务器IP = Console.ReadLine();
+
+            Console.Write("请输入服务器端口号: ");
+            int 服务器端口号 = int.Parse(Console.ReadLine());
+
+            Client 客户端 = new Client();
+            客户端.Connect(服务器IP, 服务器端口号);
+        }
+        if (choose == 2)
+        {
+            Console.Write("请输入服务器端口号: ");
+            int 端口 = int.Parse(Console.ReadLine());
+
+            Server 服务器 = new Server(端口);
+            服务器.Start();
+        }
+        if (choose == 3)
+        {
+            Environment.Exit(0);
+        }
+    }
+}
