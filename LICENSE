@@ -1,0 +1,115 @@
+XYLCS Works Open Source File/Code License (XYLCS WOSL 2.0)
+
+    Author Information: Please fill in by the author
+
+    The author and this license jointly declare that your copying, use, modification, and distribution of the "Work" are subject to the following terms of the XYLCS-WOSL, Version 2 ("this License"):
+
+    0. Definitions and Preliminary Notes
+
+      The following terms are not the final terms to be complied with. Please comply with the "6.Author's Sole Declaration" and "this License". The original author has the final right of interpretation and choice.
+
+      "Work" refers to the collection of code/resources/final works licensed under "this License" and composed of "Contributions."
+
+      "Contribution" refers to a work protected by copyright law that is licensed under "this License" by any "Contributor/Original Author."
+
+      "Contributor/Original Author" refers to a natural person or "Legal Entity" that licenses a work protected by copyright law under "this License."
+
+      "Legal Entity" refers to the entity submitting the contribution and its "Affiliated Entities."
+
+      "Affiliated Entities" refers to, for the parties acting under "this License," entities that control, are controlled by, or are under common control with the entity. Control here means having at least 50% direct or indirect voting rights, funds, or other securities of the controlled or commonly controlled entity, subject to actual circumstances and additional explanations by the author.
+
+    1. Grant of Copyright License
+
+      Each "Contributor" grants you a perpetual, worldwide, free, non-exclusive, irrevocable copyright license under "this License" to copy, use, modify, and distribute their "Contribution," whether modified or not, in compliance with the author's requirements and the license.
+
+    2. Grant of Patent License
+
+      Each "Contributor" grants you a perpetual, worldwide, free, non-exclusive, irrevocable (except as revoked under this provision) patent license under "this License" to make, have made, use, offer for sale, sell, import, or otherwise transfer their "Contribution." The aforementioned patent license is limited to patent claims that the "Contributor" currently or in the future owns or controls, which are necessarily infringed by their "Contribution" alone or in combination with the "Work" at the time of licensing the "Contribution." It does not include modifications to the "Contribution" or other combinations containing the "Contribution." If you or your "Affiliated Entities" directly or indirectly initiate patent infringement litigation (including counterclaims or cross-claims) or other patent enforcement actions against anyone regarding the "Work" or its "Contribution," alleging patent infringement.
+
+    3. Trademark License
+
+      "This License" provides a trademark license for the "Contributor's" trade names, trademarks, service marks, or product names.
+
+    4. Distribution Restrictions
+
+      You may modify and independently distribute the Contributor's, i.e., the original author's open-source product, but you must do so according to the original author's requirements. The original author has the final right of choice and interpretation. If the original author does not specify any restrictions (Article 6 does not contain any content), the default is to retain the copyright, trademark, patent, and license disclaimers in the "Work" and keep it open-source.
+
+    5. Disclaimer and Limitation of Liability
+
+      The "Work" and its "Contributions" are provided without any express or implied warranties. In no event shall the "Contributor" or copyright holder be liable to anyone for any direct or indirect damages arising from the use of the "Work" or its "Contributions," regardless of the cause or legal theory, even if they have been advised of the possibility of such damages.
+
+    6. Author's Sole Declaration
+
+      Please fill in by the author.
+
+    End of Terms
+
+    How to Apply the License Version 2 to Your Work?
+
+    If you wish to apply the XYLCS-WOSL License, Version 2, to your new work, for the convenience of recipients, it is recommended that you complete the following three steps:
+
+      1. Please fill in the required fields, including the work's name, the year of first publication, and your name as the copyright holder;
+
+      2. Please fill in Article 6, the Author's Sole Declaration;
+
+      3. Please create a file named "LICENSE" in the top-level directory of your work package and include the entire license text in this file.
+
+
+XYLCS 作品开放源文件/代码许可证（XYLCS WOSL 2.0）
+
+    作者信息：请作者填空
+
+    作者与本许可证共同声明：您对“作品”的复制、使用、修改及分发受XYLCS-WOSL许可证，第2版（“本许可证”）的如下条款的约束：
+
+   0. 定义与前置说明
+
+      以下所有条例并不为最终需要遵守的条例，请结合原作者要求与本许可证去遵守，原作者拥有最终解释权和选择权。
+
+      “作品”是指由“贡献”构成的许可在“本许可证”下的代码/资源/最终作品的集合。
+
+      “贡献”是指由任一“贡献者/原作者”许可在“本许可证”下的受版权法保护的作品。
+
+      “贡献者/原作者”是指将受版权法保护的作品许可在“本许可证”下的自然人或“法人实体”。
+
+      “法人实体”是指提交贡献的机构及其“关联实体”。
+
+      “关联实体”是指，对“本许可证”下的行为方而言，控制、受控制或与其共同受控制的机构，此处的控制是指有受控方或共同受控方至少50%直接或间接的投票权、资金或其他有价证券，当然根据实际情况+作者另外说明决定
+
+   1. 授予版权许可
+
+      每个“贡献者”根据“本许可证”授予您永久性的、全球性的、免费的、非独占的、不可撤销的版权许可，在遵守作者的要求和许可证可以复制、使用、修改、分发其“贡献”，不论修改与否。
+
+   2. 授予专利许可
+
+      每个“贡献者”根据“本许可证”授予您永久性的、全球性的、免费的、非独占的、不可撤销的（根据本条规定撤销除外）专利许可，供您制造、委托制造、使用、许诺销售、销售、进口其“贡献”或以其他方式转移其“贡献”。前述专利许可仅限于“贡献者”现在或将来拥有或控制的其“贡献”本身或其“贡献”与许可“贡献”时的“作品”结合而将必然会侵犯的专利权利要求，不包括对“贡献”的修改或包含“贡献”的其他结合。如果您或您的“关联实体”直接或间接地，就“作品”或其中的“贡献”对任何人发起专利侵权诉讼（包括反诉或交叉诉讼）或其他专利维权行动，指控其侵犯专利
+
+   3. 商标许可
+
+      “本许可证”提供对“贡献者”的商品名称、商标、服务标志或产品名称的商标许可
+
+   4. 分发限制
+
+      您可以修改并独成一产品/分发 贡献者，也就是原作者的开源产品，但需要按照原作者要求进行，原作者具有最终选择权和解释权，如果原作者并没有说明任何限制（第六条并没有写任何内容），默认保留“著作作品”中的版权、商标、专利、许可证免责声明并开源。
+
+   5. 免责声明与责任限制
+
+      “作品”及其中的“贡献”在提供时不带任何明示或默示的担保。在任何情况下，“贡献者”或版权所有者不对任何人因使用“作品”或其中的“贡献”而引发的任何直接或间接损失承担责任，不论因何种原因导致或者基于何种法律理论，即使其曾被建议有此种损失的可能性。 
+
+
+   6.作者独自声明
+
+      请作者填空
+
+
+
+   条款结束 
+
+   如何将许可证第2版应用到您的作品？
+   
+   如果您希望将XYLCS-WOSL许可证，第2版，应用到您的新作品，为了方便接收者查阅，建议您完成如下三步：
+
+      1， 请您补充需要您填充的地方，包括作品名、作品首次发表年份以及您作为版权人的名字；
+
+      2， 请您补充第六条作者独自声明
+
+      2， 请您在作品包的一级目录下创建以“LICENSE”为名的文件，将整个许可证文本放入该文件中；
