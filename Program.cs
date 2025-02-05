@@ -82,7 +82,7 @@ class Client
                 break;
 
             string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-            Console.WriteLine("\a"+DateTime.Now+" > "+data);
+            Console.Write("\a"+DateTime.Now+" > "+data);
         }
 
         Console.WriteLine("已断开与服务器的连接。如服务器多次连接不上，可能已被封禁");
