@@ -88,10 +88,11 @@ class Client
             // 用户输入用户名，如果没有输入则使用计算机名称
             Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
             string username = Console.ReadLine();
-            usernamecpy = username;
 
             if (string.IsNullOrEmpty(username))
                 username = Environment.MachineName;
+
+            usernamecpy = username;
 
             // 发送用户名到服务器
             SendMessage(username);
@@ -154,13 +155,13 @@ class Client
 
             string data = Encoding.UTF8.GetString(message, 0, bytesRead);
             messages.Add($"\a{DateTime.Now} > {data}");
-
+            string logtmp = $"{DateTime.Now} > {data}";
+            Log(logtmp);
             // 清除控制台并重新打印所有消息
             Console.Clear();
             foreach (var msg in messages)
             {
                 Console.WriteLine(msg);
-                Log(msg);
             }
 
             if (!connectionMessageShown)
