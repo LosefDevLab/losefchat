@@ -54,6 +54,7 @@ public void Connect(int ipvx, string serverIP, int serverPort)
     Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
     receiveThread.Start();
 
+    //Mod运行区域
     //用户请在这里安装mod,下面为一个简易示例
     mod moda = new mod();
     Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
@@ -165,7 +166,7 @@ public void ReceiveMessage()
         Log($"我发送了 >>> {message}");
     }
 
-    
+    //Mod开发区域
     //以下空间供Mod的开发
     //Mod开发规则:
     //一个mod只能使用一个Class,Class名称必须为mod名称
@@ -223,6 +224,7 @@ class Server
         Thread consoleInputThread = new Thread(new ThreadStart(ReadConsoleInput));
         consoleInputThread.Start();
 
+        //Mod运行区域
         //用户请在这里添加mod,下面是一个简单示范
         mod moda = new mod();
         Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
@@ -574,8 +576,8 @@ class Server
         public string ConnectionMessage { get; set; }
     }
 
-    
-    //以下空间供Mod的开发
+    //Mod开发区域
+    //以下区域供Mod的开发
     //Mod开发规则:
     //一个mod只能使用一个Class,Class名称必须为mod名称
     class mod
