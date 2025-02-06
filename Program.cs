@@ -2,14 +2,10 @@
 using System.Text;
 using System.Threading;
 using System.Net.Sockets;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-
-//"我们真的没使用AI"--losef曾经说过的顶级笑话
 
 class Client
 {
@@ -17,166 +13,182 @@ class Client
     public TcpClient tcpClient2;
     public NetworkStream clientStream;
     public string logFilePath = "logclient.txt"; // Log file path
+    public StreamWriter logFile;
+
+    public string usernamecpy = "";
+
+    public Client()
+    {
+        // 确保日志文件存在
+        if (!File.Exists(logFilePath))
+        {
+            using (File.Create(logFilePath)) { }
+        }
+        // 初始化 StreamWriter
+        logFile = new StreamWriter(logFilePath, true);
+    }
+
+    ~Client()
+    {
+        // 关闭 StreamWriter
+        logFile?.Close();
+    }
 
     public void Log(string message)
     {
-        using (StreamWriter logFile = new StreamWriter(logFilePath, true))
-        {
-            logFile.WriteLine($"{DateTime.Now}: {message}");
-            Console.WriteLine($"\a{DateTime.Now}: {message}");
-        }
+        logFile.WriteLine($"{DateTime.Now}: {message}");
+        logFile.Flush();
     }
 
-public void Connect(int ipvx, string serverIP, int serverPort)
-{
-    // Create log file if it doesn't exist
-    if (!File.Exists(logFilePath))
+    public void Connect(int ipvx, string serverIP, int serverPort)
     {
-        using (File.Create(logFilePath)) { }
-    }
-    tcpClient = new TcpClient();
-    tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
-    if (ipvx == 4)
-    {
-        tcpClient.Connect(serverIP, serverPort);
-            clientStream = tcpClient.GetStream();
-
-    // 用户输入用户名，如果没有输入则使用计算机名称
-    Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
-    string username = Console.ReadLine();
-
-    if (string.IsNullOrEmpty(username))
-        username = Environment.MachineName;
-
-    // 发送用户名到服务器
-    SendMessage(username);
-
-    Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
-    receiveThread.Start();
-
-    //Mod运行区域
-    //用户请在这里安装mod,下面为一个简易示例
-    mod moda = new mod();
-    Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
-    modThread.Start();
-
-    // 显示连接成功提示信息
-    Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
-
-    while (true)
-    {
-        string message = Console.ReadLine();
-
-        if (message.ToLower() == "exit")
-        {
-            SendMessage("我下线了啊拜拜");
-            tcpClient.Close();
-            break;
-        }
-
-        SendMessage(message);
-    }
-    }
-    else if (ipvx == 6){
-        tcpClient2.Connect(serverIP, serverPort);
-        clientStream = tcpClient2.GetStream();
-
-    // 用户输入用户名，如果没有输入则使用计算机名称
-    Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
-    string username2 = Console.ReadLine();
-
-    if (string.IsNullOrEmpty(username2))
-        username2 = Environment.MachineName;
-
-    // 发送用户名到服务器
-    SendMessage(username2);
-
-    Thread receiveThread2 = new Thread(new ThreadStart(ReceiveMessage));
-    receiveThread2.Start();
-
-    // 显示连接成功提示信息
-    Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
-
-    while (true)
-    {
-        string message = Console.ReadLine();
-
-        if (message.ToLower() == "exit")
-        {
-            SendMessage("我下线了啊拜拜");
-            tcpClient.Close();
-            break;
-        }
-
-        SendMessage(message);
-    }
-    }
-    else
-        Console.WriteLine("呃，好像没有这种IP协议");
-}
-
-public void ReceiveMessage()
-{
-    byte[] message = new byte[32567];
-    int bytesRead;
-
-    List<string> messages = new List<string>();
-    bool connectionMessageShown = false;
-
-    while (true)
-    {
-        bytesRead = 0;
-
         try
         {
-            bytesRead = clientStream.Read(message, 0, 32567);
-        }
-        catch
-        {
-            break;
-        }
+            tcpClient = new TcpClient();
+            tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
 
-        if (bytesRead == 0)
-            break;
+            if (ipvx == 4)
+            {
+                tcpClient.Connect(serverIP, serverPort);
+                clientStream = tcpClient.GetStream();
+            }
+            else if (ipvx == 6)
+            {
+                tcpClient2.Connect(serverIP, serverPort);
+                clientStream = tcpClient2.GetStream();
+            }
+            else
+            {
+                Console.WriteLine("我不说了，不要乱输入吗？qwq你不爱我了qwq");
+                Console.WriteLine("既然这样，那我就放炸弹!10秒倒计时!");
+                Thread.Sleep(1000);
+                Console.WriteLine("9秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("8秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("7秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("6秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("5秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("4秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("3秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("2秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("1秒后爆炸");
+                Thread.Sleep(1000);
+                Console.WriteLine("装逼我让你飞起来!");
+                Environment.Exit(-2147483648);
+                return;
+            }
 
-        string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-        messages.Add($"\a{DateTime.Now} > {data}");
+            // 用户输入用户名，如果没有输入则使用计算机名称
+            Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
+            string username = Console.ReadLine();
+            usernamecpy = username;
 
-        // 清除控制台并重新打印所有消息
-        Console.Clear();
-        foreach (var msg in messages)
-        {
-            Console.WriteLine(msg);
-            Log(msg);
-        }
+            if (string.IsNullOrEmpty(username))
+                username = Environment.MachineName;
 
-        if (!connectionMessageShown)
-        {
+            // 发送用户名到服务器
+            SendMessage(username);
+
+            Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
+            receiveThread.Start();
+
+            // Mod运行区域
+            // 用户请在这里安装mod,下面为一个简易示例
+            mod moda = new mod();
+            Thread modThread = new Thread(new ThreadStart(moda.Start)); // <<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
+            modThread.Start();
+
+            // 显示连接成功提示信息
             Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
-            connectionMessageShown = true;
+
+            while (true)
+            {
+                string message = Console.ReadLine();
+
+                if (message.ToLower() == "exit")
+                {
+                    SendMessage("我下线了啊拜拜");
+                    tcpClient.Close();
+                    break;
+                }
+
+                SendMessage(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"连接服务器时发生异常: {ex.Message}");
         }
     }
-}
+
+    public void ReceiveMessage()
+    {
+        byte[] message = new byte[32567];
+        int bytesRead;
+
+        List<string> messages = new List<string>();
+        bool connectionMessageShown = false;
+
+        while (true)
+        {
+            bytesRead = 0;
+
+            try
+            {
+                bytesRead = clientStream.Read(message, 0, 32567);
+            }
+            catch
+            {
+                break;
+            }
+
+            if (bytesRead == 0)
+                break;
+
+            string data = Encoding.UTF8.GetString(message, 0, bytesRead);
+            messages.Add($"\a{DateTime.Now} > {data}");
+
+            // 清除控制台并重新打印所有消息
+            Console.Clear();
+            foreach (var msg in messages)
+            {
+                Console.WriteLine(msg);
+                Log(msg);
+            }
+
+            if (!connectionMessageShown)
+            {
+                Console.WriteLine($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
+                connectionMessageShown = true;
+            }
+        }
+    }
 
     public void SendMessage(string message)
     {
         byte[] messageBytes = Encoding.UTF8.GetBytes(message);
         clientStream.Write(messageBytes, 0, messageBytes.Length);
         clientStream.Flush();
-        Log($"我发送了 >>> {message}");
     }
 
-    //Mod开发区域
-    //以下空间供Mod的开发
-    //Mod开发规则:
-    //一个mod只能使用一个Class,Class名称必须为mod名称
+    // Mod开发区域
+    // 以下空间供Mod的开发
+    // Mod开发规则:
+    // 一个mod只能使用一个Class,Class名称必须为mod名称
     class mod
     {
-        public string Name { get; set;}
-        public string Description { get; set;}
+        public string Name { get; set; }
+        public string Description { get; set; }
         public void Start()
         {
-            //Console.WriteLine();
+            // Console.WriteLine();
         }
     }
 }
@@ -582,11 +594,11 @@ class Server
     //一个mod只能使用一个Class,Class名称必须为mod名称
     class mod
     {
-        public string Name { get; set;}
-        public string Description { get; set;}
+        public string Name { get; set; }
+        public string Description { get; set; }
         public void Start()
         {
-            //Console.WriteLine();
+            // Console.WriteLine();
         }
     }
 }
@@ -595,12 +607,12 @@ class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b38\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b42\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
         
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
         {
-            Console.Write("你要用ipv4协议，还是用ipv6协议？(输入4或者6):");
+            Console.Write("你要用ipv4协议，还是用ipv6协议？(输入4或者6,乱输我们就要把你请出去了哦awa):");
             int 选择 = int.Parse(Console.ReadLine());
 
             Console.Write("请输入服务器 IP 地址: ");
@@ -610,8 +622,7 @@ class 程序
             int 服务器端口号 = int.Parse(Console.ReadLine());
 
             Client 客户端 = new Client();
-            客户端.Connect(选择,服务器IP, 服务器端口号);
-
+            客户端.Connect(选择, 服务器IP, 服务器端口号);
         }
         if (choose == 2)
         {
