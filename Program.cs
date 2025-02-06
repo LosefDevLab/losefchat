@@ -7,27 +7,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 //"我们真的没使用AI"--losef曾经说过的顶级笑话
 
 class Client
 {
-    private TcpClient tcpClient;
-    private TcpClient tcpClient2;
-    private NetworkStream clientStream;
+    public TcpClient tcpClient;
+    public TcpClient tcpClient2;
+    public NetworkStream clientStream;
+    public string logFilePath = "logclient.txt"; // Log file path
+
+    public void Log(string message)
+    {
+        using (StreamWriter logFile = new StreamWriter(logFilePath, true))
+        {
+            logFile.WriteLine($"{DateTime.Now}: {message}");
+            Console.WriteLine($"\a{DateTime.Now}: {message}");
+        }
+    }
 
 public void Connect(int ipvx, string serverIP, int serverPort)
 {
+    // Create log file if it doesn't exist
+    if (!File.Exists(logFilePath))
+    {
+        using (File.Create(logFilePath)) { }
+    }
     tcpClient = new TcpClient();
     tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
     if (ipvx == 4)
+    {
         tcpClient.Connect(serverIP, serverPort);
-    else if (ipvx == 6)
-        tcpClient2.Connect(serverIP, serverPort);
-    else
-        Console.WriteLine("呃，好像没有这种IP协议");
-
-    clientStream = tcpClient.GetStream();
+            clientStream = tcpClient.GetStream();
 
     // 用户输入用户名，如果没有输入则使用计算机名称
     Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
@@ -41,6 +53,11 @@ public void Connect(int ipvx, string serverIP, int serverPort)
 
     Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
     receiveThread.Start();
+
+    //用户请在这里安装mod,下面为一个简易示例
+    mod moda = new mod();
+    Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
+    modThread.Start();
 
     // 显示连接成功提示信息
     Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
@@ -58,9 +75,46 @@ public void Connect(int ipvx, string serverIP, int serverPort)
 
         SendMessage(message);
     }
+    }
+    else if (ipvx == 6){
+        tcpClient2.Connect(serverIP, serverPort);
+        clientStream = tcpClient2.GetStream();
+
+    // 用户输入用户名，如果没有输入则使用计算机名称
+    Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
+    string username2 = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(username2))
+        username2 = Environment.MachineName;
+
+    // 发送用户名到服务器
+    SendMessage(username2);
+
+    Thread receiveThread2 = new Thread(new ThreadStart(ReceiveMessage));
+    receiveThread2.Start();
+
+    // 显示连接成功提示信息
+    Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+
+    while (true)
+    {
+        string message = Console.ReadLine();
+
+        if (message.ToLower() == "exit")
+        {
+            SendMessage("我下线了啊拜拜");
+            tcpClient.Close();
+            break;
+        }
+
+        SendMessage(message);
+    }
+    }
+    else
+        Console.WriteLine("呃，好像没有这种IP协议");
 }
 
-private void ReceiveMessage()
+public void ReceiveMessage()
 {
     byte[] message = new byte[32567];
     int bytesRead;
@@ -92,6 +146,7 @@ private void ReceiveMessage()
         foreach (var msg in messages)
         {
             Console.WriteLine(msg);
+            Log(msg);
         }
 
         if (!connectionMessageShown)
@@ -102,23 +157,38 @@ private void ReceiveMessage()
     }
 }
 
-    private void SendMessage(string message)
+    public void SendMessage(string message)
     {
         byte[] messageBytes = Encoding.UTF8.GetBytes(message);
         clientStream.Write(messageBytes, 0, messageBytes.Length);
         clientStream.Flush();
+        Log($"我发送了 >>> {message}");
+    }
+
+    
+    //以下空间供Mod的开发
+    //Mod开发规则:
+    //一个mod只能使用一个Class,Class名称必须为mod名称
+    class mod
+    {
+        public string Name { get; set;}
+        public string Description { get; set;}
+        public void Start()
+        {
+            //Console.WriteLine();
+        }
     }
 }
 
 class Server
 {
-    private TcpListener tcpListener;
-    private List<ClientInfo> clientList = new List<ClientInfo>();
-    private object lockObject = new object();
-    private string logFilePath = "log.txt"; // Log file path
-    private string searchFilePath = "search_results.txt"; // Search results file path
-    private string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
-    private HashSet<string> bannedUsersSet;
+    public TcpListener tcpListener;
+    public List<ClientInfo> clientList = new List<ClientInfo>();
+    public object lockObject = new object();
+    public string logFilePath = "log.txt"; // Log file path
+    public string searchFilePath = "search_results.txt"; // Search results file path
+    public string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
+    public HashSet<string> bannedUsersSet;
 
     public Server(int port)
     {
@@ -152,6 +222,11 @@ class Server
         // Start a new thread to handle console input
         Thread consoleInputThread = new Thread(new ThreadStart(ReadConsoleInput));
         consoleInputThread.Start();
+
+        //用户请在这里添加mod,下面是一个简单示范
+        mod moda = new mod();
+        Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
+        modThread.Start();
 
         while (true)
         {
@@ -194,7 +269,7 @@ class Server
         }
     }
 
-    private bool IsUsernameAvailable(string username)
+    public bool IsUsernameAvailable(string username)
     {
         lock (lockObject)
         {
@@ -202,7 +277,7 @@ class Server
         }
     }
 
-    private void HandleClientCommunication(object clientInfoObj)
+    public void HandleClientCommunication(object clientInfoObj)
     {
         ClientInfo clientInfo = (ClientInfo)clientInfoObj;
         TcpClient tcpClient = clientInfo.TcpClient;
@@ -244,7 +319,7 @@ class Server
         tcpClient.Close();
     }
 
-    private void BroadcastMessage(string message)
+    public void BroadcastMessage(string message)
     {
         byte[] broadcastBytes = Encoding.UTF8.GetBytes(message);
 
@@ -262,14 +337,14 @@ class Server
         Log(message);
     }
 
-    private void SendMessage(ClientInfo clientInfo, string message)
+    public void SendMessage(ClientInfo clientInfo, string message)
     {
         byte[] messageBytes = Encoding.UTF8.GetBytes(message);
         clientInfo.TcpClient.GetStream().Write(messageBytes, 0, messageBytes.Length);
         clientInfo.TcpClient.GetStream().Flush();
     }
 
-    private void BanUser(string targetUsername)
+    public void BanUser(string targetUsername)
     {
         try
         {
@@ -303,7 +378,7 @@ class Server
         }
     }
 
-    private void KickBannedUser(string targetUsername)
+    public void KickBannedUser(string targetUsername)
     {
         try
         {
@@ -340,7 +415,7 @@ class Server
         }
     }
 
-    private void KickUser(string targetUsername)
+    public void KickUser(string targetUsername)
     {
         try
         {
@@ -375,7 +450,7 @@ class Server
         }
     }
 
-    private void UnbanUser(string targetUsername)
+    public void UnbanUser(string targetUsername)
     {
         try
         {
@@ -406,7 +481,7 @@ class Server
         }
     }
 
-    private void DisplayAllUsers()
+    public void DisplayAllUsers()
     {
         try
         {
@@ -426,7 +501,7 @@ class Server
         }
     }
 
-    private void ReadConsoleInput()
+    public void ReadConsoleInput()
     {
         while (true)
         {
@@ -459,7 +534,7 @@ class Server
         }
     }
 
-    private void Log(string message)
+    public void Log(string message)
     {
         using (StreamWriter logFile = new StreamWriter(logFilePath, true))
         {
@@ -468,7 +543,7 @@ class Server
         }
     }
 
-    private void SearchLog(string searchKeyword)
+    public void SearchLog(string searchKeyword)
     {
         try
         {
@@ -498,6 +573,20 @@ class Server
         public string Username => ConnectionMessage.Split(':')[0];
         public string ConnectionMessage { get; set; }
     }
+
+    
+    //以下空间供Mod的开发
+    //Mod开发规则:
+    //一个mod只能使用一个Class,Class名称必须为mod名称
+    class mod
+    {
+        public string Name { get; set;}
+        public string Description { get; set;}
+        public void Start()
+        {
+            //Console.WriteLine();
+        }
+    }
 }
 
 class 程序
@@ -520,6 +609,7 @@ class 程序
 
             Client 客户端 = new Client();
             客户端.Connect(选择,服务器IP, 服务器端口号);
+
         }
         if (choose == 2)
         {
