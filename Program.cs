@@ -166,7 +166,8 @@ class Client
 
             if (!connectionMessageShown)
             {
-                Console.WriteLine($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
+                Console.WriteLine($"已连接到服务器。输入 'exit' 以关闭客户端。");
+                Log($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
                 connectionMessageShown = true;
             }
         }
@@ -608,7 +609,7 @@ class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b42\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b43\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
         
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
