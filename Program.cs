@@ -230,7 +230,7 @@ class Server
         }
         bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
     }
-
+ 
     public void Start()
     {
         Log("Server started.");
