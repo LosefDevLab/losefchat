@@ -187,7 +187,7 @@ class Client
     public class mod
     {
         public Client clientcpy;
-        public mod(Client client){clientcpy = client;}
+        public mod(Client client){Thread a = new Thread(() => {while(true) clientcpy = client;});a.Start();}
         public string Name { get; set; }
         public string Description { get; set; }
         public void Start()
@@ -230,7 +230,7 @@ class Server
         }
         bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
     }
- 
+
     public void Start()
     {
         Log("Server started.");
@@ -522,7 +522,7 @@ class Server
 
             if (input.StartsWith("/kick"))//开头有kick
             {
-                string targetUsername = input.Split(' ')[1];
+                string targetUsername = input.Split(' ')[1];//
                 KickUser(targetUsername);
             }
             else if (input.StartsWith("/ban"))//开头有ban
@@ -600,7 +600,7 @@ class Server
     public class mod
     {
         public Server servercpy;
-        public mod(Server server){servercpy = server;}
+        public mod(Server server){Thread a = new Thread(() => {while(true) servercpy = server;});a.Start();}
         public string Name { get; set; }
         public string Description { get; set; }
         public void Start()
@@ -641,7 +641,8 @@ class 程序
             Thread modthread = new Thread(() =>
             {
                 is_a_mod.Start();
-            });// 必须要使用一个线程来加载模组
+            });modthread.Start();
+            // 必须要使用一个线程来加载模组
             // 照这个例子，结合模组作者的文档在下面加载模组
 
             // 模组加载区域结束
