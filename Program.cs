@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 
+//Mod : Client, Des.: LC原版客户端核心类模组
 class Client
 {
     public TcpClient tcpClient;
@@ -100,12 +101,6 @@ class Client
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
-            // Mod运行区域
-            // 用户请在这里安装mod,下面为一个简易示例
-            mod moda = new mod();
-            Thread modThread = new Thread(new ThreadStart(moda.Start)); // <<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
-            modThread.Start();
-
             // 显示连接成功提示信息
             Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
 
@@ -184,8 +179,15 @@ class Client
     // 以下空间供Mod的开发
     // Mod开发规则:
     // 一个mod只能使用一个Class,Class名称必须为mod名称
-    class mod
+    // Mod必须要有一个构造函数,构造函数必须要有一个Client/Server形参,并且在模组类内部创建一个和形参同等类型的对象
+    // 使这个内部对象和实参(形参)完全一样
+    // 必须为public类
+
+    // Mod : mod, Des.: 简易模组示例
+    public class mod
     {
+        public Client clientcpy;
+        public mod(Client client){clientcpy = client;}
         public string Name { get; set; }
         public string Description { get; set; }
         public void Start()
@@ -195,6 +197,7 @@ class Client
     }
 }
 
+// Mod : Server, Des.: LC原版服务端核心类模组
 class Server
 {
     public TcpListener tcpListener;
@@ -237,12 +240,6 @@ class Server
         // Start a new thread to handle console input
         Thread consoleInputThread = new Thread(new ThreadStart(ReadConsoleInput));
         consoleInputThread.Start();
-
-        //Mod运行区域
-        //用户请在这里添加mod,下面是一个简单示范
-        mod moda = new mod();
-        Thread modThread = new Thread(new ThreadStart(moda.Start));//<<<这里在实际中要看Mod的启动方法是哪一个,具体请看mod作者如何要求
-        modThread.Start();
 
         while (true)
         {
@@ -497,7 +494,7 @@ class Server
         }
     }
 
-    public void DisplayAllUsers()
+    public void DisplayAllUsers()//显示所有用户
     {
         try
         {
@@ -506,7 +503,7 @@ class Server
                 Console.WriteLine("当前在线用户:");
                 foreach (var client in clientList)
                 {
-                    Console.WriteLine(client.Username);
+                    Console.WriteLine(client.Username);//在这里遍历然后显示
                 }
             }
         }
@@ -514,7 +511,7 @@ class Server
         {
             Console.WriteLine($"在投影当前在线用户的时候发生异常 {ex}");
             Log($"在投影当前在线用户的时候发生异常 {ex}");
-        }
+        }//我还是太谨慎了这玩意可能永远都不会触发
     }
 
     public void ReadConsoleInput()
@@ -523,26 +520,26 @@ class Server
         {
             string input = Console.ReadLine();
 
-            if (input.StartsWith("/kick"))
+            if (input.StartsWith("/kick"))//开头有kick
             {
                 string targetUsername = input.Split(' ')[1];
                 KickUser(targetUsername);
             }
-            else if (input.StartsWith("/ban"))
+            else if (input.StartsWith("/ban"))//开头有ban
             {
                 string targetUsername = input.Split(' ')[1];
                 BanUser(targetUsername);
             }
-            else if (input.StartsWith("/unban"))
+            else if (input.StartsWith("/unban"))//开头有unban
             {
                 string targetUsername = input.Split(' ')[1];
                 UnbanUser(targetUsername);
             }
-            else if (input.StartsWith("/users"))
+            else if (input.StartsWith("/users"))//开头有users
             {
                 DisplayAllUsers();
             }
-            else if (input.StartsWith("/search"))
+            else if (input.StartsWith("/search"))//开头有search
             {
                 string searchKeyword = input.Substring(8);
                 SearchLog(searchKeyword);
@@ -583,6 +580,7 @@ class Server
         }
     }
 
+    // Mod : ClientInfo, Des.: 原版含有的模组,用于存储客户端信息的核心类, Server前置模组
     public class ClientInfo
     {
         public TcpClient TcpClient { get; set; }
@@ -594,8 +592,15 @@ class Server
     //以下区域供Mod的开发
     //Mod开发规则:
     //一个mod只能使用一个Class,Class名称必须为mod名称
-    class mod
+    // Mod必须要有一个构造函数,构造函数必须要有一个Client/Server形参,并且在模组类内部创建一个和形参同等类型的对象
+    // 使这个内部对象和实参(形参)完全一样
+    // 必须为public类
+
+    // Mod : mod, Des.: 简易模组示例
+    public class mod
     {
+        public Server servercpy;
+        public mod(Server server){servercpy = server;}
         public string Name { get; set; }
         public string Description { get; set; }
         public void Start()
@@ -605,11 +610,12 @@ class Server
     }
 }
 
+// Mod : 程序, Des.: LC主程序类模组,包含模式选择、启动、模组加载基本重要功能
 class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b43\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b44\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
         
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
@@ -623,7 +629,24 @@ class 程序
             Console.Write("请输入服务器端口号: ");
             int 服务器端口号 = int.Parse(Console.ReadLine());
 
+
+
             Client 客户端 = new Client();
+
+
+            // 模组加载区域
+            // 在这里加载模组
+            // 下为简易示例,服务端模式相同操作
+            Client.mod is_a_mod = new Client.mod(客户端);//<<< 必须要在参数表(括号)中加入它对应运行模式的对应类的已声明实例
+            Thread modthread = new Thread(() =>
+            {
+                is_a_mod.Start();
+            });// 必须要使用一个线程来加载模组
+            // 照这个例子，结合模组作者的文档在下面加载模组
+
+            // 模组加载区域结束
+
+
             客户端.Connect(选择, 服务器IP, 服务器端口号);
         }
         if (choose == 2)
@@ -632,6 +655,21 @@ class 程序
             int 端口 = int.Parse(Console.ReadLine());
 
             Server 服务器 = new Server(端口);
+
+
+            // 模组加载区域
+            // 在这里加载模组
+            // 下为简易示例
+            Server.mod is_a_mod = new Server.mod(服务器);//<<< 必须要在参数表(括号)中加入它对应运行模式的对应类的已声明实例
+            Thread modthread = new Thread(() =>
+            {
+                is_a_mod.Start();
+            });// 必须要使用一个线程来加载模组
+            // 照这个例子，结合模组作者的文档在下面加载模组
+
+            // 模组加载区域结束
+
+
             服务器.Start();
         }
         if (choose == 3)
