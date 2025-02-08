@@ -503,7 +503,7 @@ class Server
                 Console.WriteLine("当前在线用户:");
                 foreach (var client in clientList)
                 {
-                    Console.WriteLine(client.Username);//在这里遍历然后显示
+                    Console.WriteLine("    "+client.Username);//在这里遍历然后显示
                 }
             }
         }
