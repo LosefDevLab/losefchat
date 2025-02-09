@@ -15,7 +15,6 @@ class Client
     public NetworkStream clientStream;
     public string logFilePath = "logclient.txt"; // Log file path
     public StreamWriter logFile;
-
     public string usernamecpy = "";
 
     public Client()
@@ -206,7 +205,13 @@ class Server
     public string logFilePath = "log.txt"; // Log file path
     public string searchFilePath = "search_results.txt"; // Search results file path
     public string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
+    public string whiteListFilePath = "white_list.txt"; // White list file path
+    public string passwordFilePath = "password.txt"; // Password file path
     public HashSet<string> bannedUsersSet;
+    public HashSet<string> whiteListSet;
+    public HashSet<string> passwordSet;
+    public bool isServerUseTheWhiteList = false;
+
 
     public Server(int port)
     {
@@ -229,7 +234,15 @@ class Server
             using (File.Create(bannedUsersFilePath)) { }
         }
         bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
+
+        // Create or read white list file
+        if (!File.Exists(whiteListFilePath))
+        {
+            using (File.Create(whiteListFilePath)) { }
+        }
+        whiteListSet = File.ReadAllLines(whiteListFilePath).ToHashSet();
     }
+
 
     public void Start()
     {
@@ -256,7 +269,7 @@ class Server
             // Check if in banned list
             if (bannedUsersSet.Contains(clientInfo.Username))
             {
-                Console.WriteLine($"拒绝了一个封禁用户的连接请求: '{clientInfo.Username}' 好像不知道他在封禁名单里面.");
+                Log($"拒绝了一个封禁用户的连接请求: '{clientInfo.Username}' 好像不知道他在封禁名单里面.");
                 tcpClient.Close();
                 continue;
             }
@@ -268,6 +281,16 @@ class Server
                 tcpClient.Close();
                 continue;
             }
+
+            // Check if in white list
+            if (!whiteListSet.Contains(clientInfo.Username) && isServerUseTheWhiteList)
+            {
+                SendMessage(clientInfo, "qwq你不在白名单里面捏,不能加入服务器.");
+                Log($"拒绝了一个非白名单用户的连接请求: '{clientInfo.Username}' 好像不知道他不在白名单里面.");
+                tcpClient.Close();
+                continue;
+            }
+
 
             lock (lockObject)
             {
@@ -494,6 +517,9 @@ class Server
         }
     }
 
+
+
+
     public void DisplayAllUsers()//显示所有用户
     {
         try
@@ -512,6 +538,85 @@ class Server
             Console.WriteLine($"在投影当前在线用户的时候发生异常 {ex}");
             Log($"在投影当前在线用户的时候发生异常 {ex}");
         }//我还是太谨慎了这玩意可能永远都不会触发
+    }
+
+    public void AddToWhiteList(string username)
+    {
+        try
+        {
+            lock (lockObject)
+            {
+                if (!whiteListSet.Contains(username))
+                {
+                    whiteListSet.Add(username);
+                    File.WriteAllLines(whiteListFilePath, whiteListSet);
+
+                    Console.WriteLine($"'{username}' 已添加到白名单.");
+                    Log($"'{username}' 已添加到白名单.");
+                }
+                else
+                {
+                    Console.WriteLine($"'{username}' 已经在白名单里面了,不要重复添加.");
+                    Log($"'{username}' 已经在白名单里面了,不要重复添加.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"在添加到白名单时发生异常 {ex}");
+            Log($"在添加到白名单时发生异常 {ex}");
+        }
+    }
+
+    public void RemoveFromWhiteList(string username)
+    {
+        try
+        {
+            lock (lockObject)
+            {
+                if (whiteListSet.Contains(username))
+                {
+                    whiteListSet.Remove(username);
+                    File.WriteAllLines(whiteListFilePath, whiteListSet);
+
+                    Console.WriteLine($"'{username}' 已从白名单中移除.");
+                    Log($"'{username}' 已从白名单中移除.");
+                }
+                else
+                {
+                    Console.WriteLine($"'{username}' 本来就不在白名单里面,不要重复移除.");
+                    Log($"'{username}' 本来就不在白名单里面,不要重复移除.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"在从白名单中移除用户时发生异常 {ex}");
+            Log($"在从白名单中移除用户时发生异常 {ex}");
+        }
+    }
+
+    public void LetWhiteListUserJoin()
+    {
+        try
+        {
+            lock (lockObject)
+            {
+                foreach (var client in clientList)
+                {
+                    if (whiteListSet.Contains(client.Username))
+                    {
+                        Log(client.Username+" 被添加到了白名单,可以加入服务器了!");
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"在允许白名单用户加入时发生异常 {ex}");
+            Log($"在允许白名单用户加入时发生异常 {ex}");
+        }
     }
 
     public void ReadConsoleInput()
@@ -544,8 +649,33 @@ class Server
                 string searchKeyword = input.Substring(8);
                 SearchLog(searchKeyword);
             }
+            else if (input.StartsWith("/addwl"))//开头有addwl
+            {
+                string username = input.Substring(10);
+                AddToWhiteList(username);
+            }
+            else if (input.StartsWith("/rmwl"))//开头有rmwl
+            {
+                string username = input.Substring(14);
+                RemoveFromWhiteList(username);
+            }
+
+            else if (input.StartsWith("/usewl"))//开头有usewl
+            {
+                isServerUseTheWhiteList = true;
+                Log("服务器已启用白名单模式.");
+            }
+
+            else if (input.StartsWith("/notwl"))//开头有notwl
+            {
+                isServerUseTheWhiteList = false;
+                Log("服务器已关闭白名单模式.");
+            }
         }
     }
+
+
+
 
     public void Log(string message)
     {
@@ -615,7 +745,7 @@ class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v0.1.r2.b44\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v1.0.r2.b46\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
         
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
