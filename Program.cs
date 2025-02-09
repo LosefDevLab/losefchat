@@ -206,10 +206,8 @@ class Server
     public string searchFilePath = "search_results.txt"; // Search results file path
     public string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
     public string whiteListFilePath = "white_list.txt"; // White list file path
-    public string passwordFilePath = "password.txt"; // Password file path
     public HashSet<string> bannedUsersSet;
     public HashSet<string> whiteListSet;
-    public HashSet<string> passwordSet;
     public bool isServerUseTheWhiteList = false;
 
 
