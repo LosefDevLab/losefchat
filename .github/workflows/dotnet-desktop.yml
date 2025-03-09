@@ -21,8 +21,5 @@ jobs:
       run: dotnet test --verbosity normal
     - name: Publish to Linux
       run: dotnet publish -c Release -r linux-x64 --self-contained true
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: my-app-linux
-        path: bin/Release/net8.0/linux-x64/publish/**/*
+    - name: RUN
+      run: dotnet run
