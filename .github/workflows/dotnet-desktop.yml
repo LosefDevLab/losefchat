@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v4.6.1
       with:
         name: losefchat
-        path: bin/Release/net7.0/linux-x64/publish/**/*
+        path: bin/Release/net8.0/linux-x64/publish/**/*
