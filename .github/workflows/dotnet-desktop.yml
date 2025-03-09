@@ -16,10 +16,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build
     - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish -c Release -r linux-x64 --self-contained true
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      run: dotnet test --verbosity normal
