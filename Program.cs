@@ -97,6 +97,13 @@ class Client
             // 发送用户名到服务器
             SendMessage(username);
 
+            // 用户输入密码
+            Console.Write("请输入密码: ");
+            string password = Console.ReadLine();
+
+            // 发送密码到服务器
+            SendMessage(password);
+
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
@@ -186,9 +193,20 @@ class Client
     public class mod
     {
         public Client clientcpy;
-        public mod(Client client){Thread a = new Thread(() => {while(true) clientcpy = client;});a.Start();}
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public mod(Client client) {
+            Thread a = new Thread(() => {
+                while(true) clientcpy = client;
+            });
+            a.Start();
+        }
+        public string Name {
+            get;
+            set;
+        }
+        public string Description {
+            get;
+            set;
+        }
         public void Start()
         {
             // Console.WriteLine();
@@ -209,7 +227,6 @@ class Server
     public HashSet<string> bannedUsersSet;
     public HashSet<string> whiteListSet;
     public bool isServerUseTheWhiteList = false;
-
 
     public Server(int port)
     {
@@ -240,7 +257,8 @@ class Server
         }
         whiteListSet = File.ReadAllLines(whiteListFilePath).ToHashSet();
     }
-
+    public string userFilePath = "user.txt";
+    public string pwdFilePath = "pwd.txt";
 
     public void Start()
     {
@@ -248,7 +266,6 @@ class Server
 
         tcpListener.Start();
 
-        // Start a new thread to handle console input
         Thread consoleInputThread = new Thread(new ThreadStart(ReadConsoleInput));
         consoleInputThread.Start();
 
@@ -256,53 +273,64 @@ class Server
         {
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
-            // User connected to the server message
-            byte[] connectionMessageBytes = new byte[32567];
-            int bytesRead = tcpClient.GetStream().Read(connectionMessageBytes, 0, 32567);
-            string connectionMessage = Encoding.UTF8.GetString(connectionMessageBytes, 0, bytesRead);
+            byte[] usernameBytes = new byte[32567];
+            int usernameBytesRead = tcpClient.GetStream().Read(usernameBytes, 0, 32567);
+            string username = Encoding.UTF8.GetString(usernameBytes, 0, usernameBytesRead);
 
-            // Create client info object to store client information
-            ClientInfo clientInfo = new ClientInfo { TcpClient = tcpClient, ConnectionMessage = connectionMessage };
+            byte[] passwordBytes = new byte[32567];
+            int passwordBytesRead = tcpClient.GetStream().Read(passwordBytes, 0, 32567);
+            string password = Encoding.UTF8.GetString(passwordBytes, 0, passwordBytesRead);
 
-            // Check if in banned list
-            if (bannedUsersSet.Contains(clientInfo.Username))
+            if (!IsUserValid(username, password))
             {
-                Log($"拒绝了一个封禁用户的连接请求: '{clientInfo.Username}' 好像不知道他在封禁名单里面.");
+                Log($"拒绝了一个用户的连接请求: '{username}' 用户名或密码错误.");
                 tcpClient.Close();
                 continue;
             }
 
-            // Check for duplicate username
-            if (!IsUsernameAvailable(clientInfo.Username))
-            {
-                SendMessage(clientInfo, "qwq在这个服务器里面已经存在这个用户名字了捏.");
-                tcpClient.Close();
-                continue;
-            }
-
-            // Check if in white list
-            if (!whiteListSet.Contains(clientInfo.Username) && isServerUseTheWhiteList)
-            {
-                SendMessage(clientInfo, "qwq你不在白名单里面捏,不能加入服务器.");
-                Log($"拒绝了一个非白名单用户的连接请求: '{clientInfo.Username}' 好像不知道他不在白名单里面.");
-                tcpClient.Close();
-                continue;
-            }
-
+            ClientInfo clientInfo = new ClientInfo { TcpClient = tcpClient, Username = username };
 
             lock (lockObject)
             {
                 clientList.Add(clientInfo);
             }
 
-            // Broadcast new user joined message
             BroadcastMessage($"{clientInfo.Username} 加入了服务器");
-            // Start a new thread to handle client communication
+
             Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientCommunication));
             clientThread.Start(clientInfo);
         }
     }
 
+    private bool IsUserValid(string username, string password)
+    {
+        if (!File.Exists(userFilePath))
+        {
+            using (File.Create(userFilePath)) { }
+        }
+
+        if (!File.Exists(pwdFilePath))
+        {
+            using (File.Create(pwdFilePath)) { }
+        }
+
+        var users = File.ReadAllLines(userFilePath);
+        var passwords = File.ReadAllLines(pwdFilePath);
+
+        int index = Array.IndexOf(users, username);
+
+        if (index == -1)
+        {   //新用户逻辑
+
+            File.AppendAllText(userFilePath, username + Environment.NewLine);
+            File.AppendAllText(pwdFilePath, password + Environment.NewLine);
+            return true;
+        }
+        else
+        {   //旧用户逻辑
+            return passwords[index] == password;
+        }
+    }
     public bool IsUsernameAvailable(string username)
     {
         lock (lockObject)
@@ -515,9 +543,6 @@ class Server
         }
     }
 
-
-
-
     public void DisplayAllUsers()//显示所有用户
     {
         try
@@ -672,9 +697,6 @@ class Server
         }
     }
 
-
-
-
     public void Log(string message)
     {
         using (StreamWriter logFile = new StreamWriter(logFilePath, true))
@@ -709,12 +731,23 @@ class Server
     }
 
     // Mod : ClientInfo, Des.: 原版含有的模组,用于存储客户端信息的核心类, Server前置模组
-    public class ClientInfo
+public class ClientInfo
+{
+    public TcpClient TcpClient { get; set; }
+    private string _connectionMessage;
+
+    public string ConnectionMessage
     {
-        public TcpClient TcpClient { get; set; }
-        public string Username => ConnectionMessage.Split(':')[0];
-        public string ConnectionMessage { get; set; }
+        get => _connectionMessage;
+        set
+        {
+            _connectionMessage = value;
+            Username = _connectionMessage.Split(':')[0];
+        }
     }
+
+    public string Username { get;set; }
+}
 
     //Mod开发区域
     //以下区域供Mod的开发
@@ -728,9 +761,20 @@ class Server
     public class mod
     {
         public Server servercpy;
-        public mod(Server server){Thread a = new Thread(() => {while(true) servercpy = server;});a.Start();}
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public mod(Server server) {
+            Thread a = new Thread(() => {
+                while(true) servercpy = server;
+            });
+            a.Start();
+        }
+        public string Name {
+            get;
+            set;
+        }
+        public string Description {
+            get;
+            set;
+        }
         public void Start()
         {
             // Console.WriteLine();
@@ -744,7 +788,7 @@ class 程序
     static void Main()
     {
         Console.WriteLine("欢迎使用LosefChat v1.0.r2.b46\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
-        
+
         int choose = int.Parse(Console.ReadLine());
         if (choose == 1)
         {
@@ -757,10 +801,7 @@ class 程序
             Console.Write("请输入服务器端口号: ");
             int 服务器端口号 = int.Parse(Console.ReadLine());
 
-
-
             Client 客户端 = new Client();
-
 
             // 模组加载区域
             // 在这里加载模组
@@ -769,12 +810,12 @@ class 程序
             Thread modthread = new Thread(() =>
             {
                 is_a_mod.Start();
-            });modthread.Start();
+            });
+            modthread.Start();
             // 必须要使用一个线程来加载模组
             // 照这个例子，结合模组作者的文档在下面加载模组
 
             // 模组加载区域结束
-
 
             客户端.Connect(选择, 服务器IP, 服务器端口号);
         }
@@ -784,7 +825,6 @@ class 程序
             int 端口 = int.Parse(Console.ReadLine());
 
             Server 服务器 = new Server(端口);
-
 
             // 模组加载区域
             // 在这里加载模组
@@ -797,7 +837,6 @@ class 程序
             // 照这个例子，结合模组作者的文档在下面加载模组
 
             // 模组加载区域结束
-
 
             服务器.Start();
         }
