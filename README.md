@@ -2,8 +2,6 @@
 
 CREATE BY XYLCS/XIT/LOSEFDEVLAB
 
-###### 不好意思忘了贴开发者文档了：xylcsstudio.gitbook.io/lcdevdoc
-
 ##### 别问软件怎么下载了，要自己编译，请看最后面
 
 ###### 对的，我们停止了对XSC的开发，转而从头开发类似于XSC的聊天模块，原因是他的版本管理跟个**一样，并且功能也做的不是特别完美，而且都鸽了好几个月了
