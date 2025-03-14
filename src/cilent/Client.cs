@@ -191,7 +191,7 @@ public partial class Client
     // 必须为public类
 
     // Mod : MyMod, Des.: 简易模组示例
-    public class MyMod
+    public class mod
     {
         public Client clientcpy;
         public MyMod(Client client)
