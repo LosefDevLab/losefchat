@@ -197,7 +197,6 @@ public partial class Client
         public mod(Client client)
         {
             clientcpy = client;
-            return 0;
         }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
