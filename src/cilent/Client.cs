@@ -194,7 +194,7 @@ public partial class Client
     public class mod
     {
         public Client clientcpy;
-        public MyMod(Client client)
+        public mod(Client client)
         {
             clientcpy = client;
             return 0;
