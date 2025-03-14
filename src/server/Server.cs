@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -25,18 +26,19 @@ public partial class Server
     {
         tcpListener = new TcpListener(IPAddress.Any, port);
 
-        // Create log file if it doesn't exist
         if (!File.Exists(logFilePath))
         {
             using (File.Create(logFilePath)) { }
         }
-        // Create search results file if it doesn't exist
+        if (!File.Exists(psxrcfgFilePath))
+        {
+            using (File.Create(psxrcfgFilePath)) { }
+        }
         if (!File.Exists(searchFilePath))
         {
             using (File.Create(searchFilePath)) { }
         }
 
-        // Create or read banned users file
         if (!File.Exists(bannedUsersFilePath))
         {
             using (File.Create(bannedUsersFilePath)) { }
@@ -55,7 +57,36 @@ public partial class Server
 
     public void Start()
     {
-        Log("Server started.");
+        Log("Server loading...");
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        if (!File.Exists(logFilePath))
+        {
+            using (File.Create(logFilePath)) { }
+        }
+        if (!File.Exists(psxrcfgFilePath))
+        {
+            using (File.Create(psxrcfgFilePath)) { }
+        }
+        if (!File.Exists(searchFilePath))
+        {
+            using (File.Create(searchFilePath)) { }
+        }
+
+        if (!File.Exists(bannedUsersFilePath))
+        {
+            using (File.Create(bannedUsersFilePath)) { }
+        }
+        bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
+
+        // Create or read white list file
+        if (!File.Exists(whiteListFilePath))
+        {
+            using (File.Create(whiteListFilePath)) { }
+        }
+        stopwatch.Stop();
+        TimeSpan elapsed = stopwatch.Elapsed;
+        Log($"Server started. [{elapsed.TotalMilliseconds} ms]");
 
         tcpListener.Start();
 
@@ -64,6 +95,28 @@ public partial class Server
 
         while (true)
         {
+        if (!File.Exists(logFilePath))
+        {
+            using (File.Create(logFilePath)) { }
+        }
+        if (!File.Exists(psxrcfgFilePath))
+        {
+            using (File.Create(psxrcfgFilePath)) { }
+        }
+        if (!File.Exists(searchFilePath))
+        {
+            using (File.Create(searchFilePath)) { }
+        }
+
+        if (!File.Exists(bannedUsersFilePath))
+        {
+            using (File.Create(bannedUsersFilePath)) { }
+        }
+        // Create or read white list file
+        if (!File.Exists(whiteListFilePath))
+        {
+            using (File.Create(whiteListFilePath)) { }
+        }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
             byte[] usernameBytes = new byte[32567];
@@ -97,16 +150,6 @@ public partial class Server
 
     private bool IsUserValid(string username, string password)
     {
-        if (!File.Exists(userFilePath))
-        {
-            using (File.Create(userFilePath)) { }
-        }
-
-        if (!File.Exists(pwdFilePath))
-        {
-            using (File.Create(pwdFilePath)) { }
-        }
-
         var users = File.ReadAllLines(userFilePath);
         var passwords = File.ReadAllLines(pwdFilePath);
 
