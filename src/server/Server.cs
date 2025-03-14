@@ -18,21 +18,22 @@ public partial class Server
     public string searchFilePath = "search_results.txt"; // Search results file path
     public string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
     public string whiteListFilePath = "white_list.txt"; // White list file path
+    public string psxrcfgPath = "psxrcfg.txt";
     public HashSet<string> bannedUsersSet;
     public HashSet<string> whiteListSet;
     public bool isServerUseTheWhiteList = false;
 
     public Server(int port)
-    {
-        tcpListener = new TcpListener(IPAddress.Any, port);
+    {   
+        
 
         if (!File.Exists(logFilePath))
         {
             using (File.Create(logFilePath)) { }
         }
-        if (!File.Exists(psxrcfgFilePath))
+        if (!File.Exists(psxrcfgPath))
         {
-            using (File.Create(psxrcfgFilePath)) { }
+            using (File.Create(psxrcfgPath)) { }
         }
         if (!File.Exists(searchFilePath))
         {
@@ -64,9 +65,9 @@ public partial class Server
         {
             using (File.Create(logFilePath)) { }
         }
-        if (!File.Exists(psxrcfgFilePath))
+        if (!File.Exists(psxrcfgPath))
         {
-            using (File.Create(psxrcfgFilePath)) { }
+            using (File.Create(psxrcfgPath)) { }
         }
         if (!File.Exists(searchFilePath))
         {
@@ -95,28 +96,28 @@ public partial class Server
 
         while (true)
         {
-        if (!File.Exists(logFilePath))
-        {
-            using (File.Create(logFilePath)) { }
-        }
-        if (!File.Exists(psxrcfgFilePath))
-        {
-            using (File.Create(psxrcfgFilePath)) { }
-        }
-        if (!File.Exists(searchFilePath))
-        {
-            using (File.Create(searchFilePath)) { }
-        }
+            if (!File.Exists(logFilePath))
+            {
+                using (File.Create(logFilePath)) { }
+            }
+            if (!File.Exists(psxrcfgPath))
+            {
+                using (File.Create(psxrcfgPath)) { }
+            }
+            if (!File.Exists(searchFilePath))
+            {
+                using (File.Create(searchFilePath)) { }
+            }
 
-        if (!File.Exists(bannedUsersFilePath))
-        {
-            using (File.Create(bannedUsersFilePath)) { }
-        }
-        // Create or read white list file
-        if (!File.Exists(whiteListFilePath))
-        {
-            using (File.Create(whiteListFilePath)) { }
-        }
+            if (!File.Exists(bannedUsersFilePath))
+            {
+                using (File.Create(bannedUsersFilePath)) { }
+            }
+            // Create or read white list file
+            if (!File.Exists(whiteListFilePath))
+            {
+                using (File.Create(whiteListFilePath)) { }
+            }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
             byte[] usernameBytes = new byte[32567];
@@ -518,13 +519,11 @@ public partial class Server
                 string username = input.Substring(14);
                 RemoveFromWhiteList(username);
             }
-
             else if (input.StartsWith("/usewl"))//开头有usewl
             {
                 isServerUseTheWhiteList = true;
                 Log("服务器已启用白名单模式.");
             }
-
             else if (input.StartsWith("/notwl"))//开头有notwl
             {
                 isServerUseTheWhiteList = false;
@@ -567,23 +566,29 @@ public partial class Server
     }
 
     // Mod : ClientInfo, Des.: 原版含有的模组,用于存储客户端信息的核心类, Server前置模组
-public class ClientInfo
-{
-    public TcpClient TcpClient { get; set; }
-    private string _connectionMessage;
-
-    public string ConnectionMessage
+    public class ClientInfo
     {
-        get => _connectionMessage;
-        set
+        public TcpClient TcpClient {
+            get;
+            set;
+        }
+        private string _connectionMessage;
+
+        public string ConnectionMessage
         {
-            _connectionMessage = value;
-            Username = _connectionMessage.Split(':')[0];
+            get => _connectionMessage;
+            set
+            {
+                _connectionMessage = value;
+                Username = _connectionMessage.Split(':')[0];
+            }
+        }
+
+        public string Username {
+            get;
+            set;
         }
     }
-
-    public string Username { get;set; }
-}
 
     //Mod开发区域
     //以下区域供Mod的开发

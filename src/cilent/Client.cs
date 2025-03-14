@@ -2,17 +2,16 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Net.Sockets;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 
-//Mod : Client, Des.: LC原版客户端核心类模组
+// Mod : Client, Des.: LC原版客户端核心类模组
 public partial class Client
 {
-    public TcpClient tcpClient;
-    public TcpClient tcpClient2;
-    public NetworkStream clientStream;
+    public TcpClient? tcpClient;
+    public TcpClient? tcpClient2;
+    public NetworkStream? clientStream;
     public string logFilePath = "logclient.txt"; // Log file path
     public StreamWriter logFile;
     public string usernamecpy = "";
@@ -117,7 +116,7 @@ public partial class Client
                 if (message.ToLower() == "exit")
                 {
                     SendMessage("我下线了啊拜拜");
-                    tcpClient.Close();
+                    tcpClient?.Close();
                     break;
                 }
 
@@ -144,7 +143,7 @@ public partial class Client
 
             try
             {
-                bytesRead = clientStream.Read(message, 0, 32567);
+                bytesRead = clientStream?.Read(message, 0, 32567) ?? 0;
             }
             catch
             {
@@ -176,9 +175,11 @@ public partial class Client
 
     public void SendMessage(string message)
     {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
         byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-        clientStream.Write(messageBytes, 0, messageBytes.Length);
-        clientStream.Flush();
+        clientStream?.Write(messageBytes, 0, messageBytes.Length);
+        clientStream?.Flush();
     }
 
     // Mod开发区域
@@ -189,24 +190,16 @@ public partial class Client
     // 使这个内部对象和实参(形参)完全一样
     // 必须为public类
 
-    // Mod : mod, Des.: 简易模组示例
-    public class mod
+    // Mod : MyMod, Des.: 简易模组示例
+    public class MyMod
     {
         public Client clientcpy;
-        public mod(Client client) {
-            Thread a = new Thread(() => {
-                while(true) clientcpy = client;
-            });
-            a.Start();
+        public MyMod(Client client)
+        {
+            clientcpy = client;
         }
-        public string Name {
-            get;
-            set;
-        }
-        public string Description {
-            get;
-            set;
-        }
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
         public void Start()
         {
             // Console.WriteLine();
