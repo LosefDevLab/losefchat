@@ -117,8 +117,7 @@ public partial class Client
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
-            // 显示连接成功提示信息
-            Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
+            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。输入 'exit' 以关闭客户端。");
 
             while (true)
             {

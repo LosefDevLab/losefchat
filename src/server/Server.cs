@@ -55,6 +55,7 @@ public partial class Server
         }
         whiteListSet = File.ReadAllLines(whiteListFilePath).ToHashSet();
         Timer resetAttemptsTimer = new Timer(ResetLoginAttempts, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+        tcpListener = new TcpListener(IPAddress.Any, port);
     }
     public string userFilePath = "user.txt";
     public string pwdFilePath = "pwd.txt";
@@ -162,6 +163,21 @@ public partial class Server
 
     private bool IsUserValid(string username, string password)
     {
+        // 检查用户是否被锁定
+        if (lockedUsers.ContainsKey(username))
+        {
+            if (DateTime.Now.Date == lockedUsers[username].Date)
+            {
+                Log($"用户在之前'{username}' 因连续1次登录失败被锁定.");
+                return false;
+            }
+            else
+            {
+                // 如果是新的一天，移除锁定状态
+                lockedUsers.Remove(username);
+            }
+        }
+
         var users = File.ReadAllLines(userFilePath);
         var passwords = File.ReadAllLines(pwdFilePath);
 
@@ -202,15 +218,16 @@ public partial class Server
                         if (DateTime.Now.Date != lastAttemptTime[username].Date)
                         {
                             // 如果是新的一天，重置尝试次数
-                            loginAttempts[username] = 1;
+                            loginAttempts[username] = 0;
                             lastAttemptTime[username] = DateTime.Now;
                         }
                         else
                         {
                             loginAttempts[username]++;
-                            if (loginAttempts[username] >= 10)
+                            if (loginAttempts[username] >= 1)
                             {
-                                Log($"用户 '{username}' 因连续10次登录失败被锁定.");//防破解机制 联合pefender
+                                Log($"用户 '{username}' 因连续1次登录失败被锁定.");
+                                lockedUsers[username] = DateTime.Now;
                                 return false;
                             }
                         }
