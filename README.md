@@ -130,7 +130,7 @@ CMTMSG规范
   - Add part for #x : xxxxxxx
   - Update for #x : xxxxxxx
   - Fix in #x : xxxxxxx
-  - Merge branch xx(branchname) : For #x
+  - Merge branch xx(branchname) in #x : xxxxxx
 
 Release & tag信息规范
 
