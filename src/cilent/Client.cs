@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 
 // Mod : Client, Des.: LC原版客户端核心类模组
+// Part : Client主部分
 public partial class Client
 {
     public TcpClient? tcpClient;
@@ -85,20 +86,30 @@ public partial class Client
             }
 
             // 用户输入用户名，如果没有输入则使用计算机名称
-            Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
+            Console.Write("请输入用户名（按 Enter 使用计算机名, 空格会被忽略）: ");
             string username = Console.ReadLine();
 
             if (string.IsNullOrEmpty(username))
                 username = Environment.MachineName;
-
+            if (username.Contains(" "))
+            {
+                username = username.Replace(" ", "");//删除空格
+            }
+            
             usernamecpy = username;
 
             // 发送用户名到服务器
             SendMessage(username);
 
             // 用户输入密码
-            Console.Write("请输入密码: ");
+            Console.Write("请输入密码(空格会被忽略): ");
             string password = Console.ReadLine();
+            //检测是否有空格,有空格直接给他干了
+            if (password.Contains(" "))
+            {
+                    password = password.Replace(" ","");//删除空格
+            }
+
 
             // 发送密码到服务器
             SendMessage(password);
@@ -191,10 +202,10 @@ public partial class Client
     // 必须为public类
 
     // Mod : MyMod, Des.: 简易模组示例
-    public class MyMod
+    public class mod
     {
         public Client clientcpy;
-        public MyMod(Client client)
+        public mod(Client client)
         {
             clientcpy = client;
         }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 
 // Mod : Server, Des.: LC原版服务端核心类模组
+// Part : Server主部分
 public partial class Server
 {
     public TcpListener tcpListener;
@@ -18,22 +19,23 @@ public partial class Server
     public string searchFilePath = "search_results.txt"; // Search results file path
     public string bannedUsersFilePath = "banned_users.txt"; // Banned users file path
     public string whiteListFilePath = "white_list.txt"; // White list file path
-    public string psxrcfgPath = "psxrcfg.txt";
     public HashSet<string> bannedUsersSet;
     public HashSet<string> whiteListSet;
     public bool isServerUseTheWhiteList = false;
 
     public Server(int port)
-    {   
-        
-
+    {
+        if (!File.Exists(userFilePath))
+        {
+            using (File.Create(userFilePath)) { }
+        }
+        if (!File.Exists(pwdFilePath))
+        {
+            using (File.Create(pwdFilePath)) { }
+        }
         if (!File.Exists(logFilePath))
         {
             using (File.Create(logFilePath)) { }
-        }
-        if (!File.Exists(psxrcfgPath))
-        {
-            using (File.Create(psxrcfgPath)) { }
         }
         if (!File.Exists(searchFilePath))
         {
@@ -52,6 +54,7 @@ public partial class Server
             using (File.Create(whiteListFilePath)) { }
         }
         whiteListSet = File.ReadAllLines(whiteListFilePath).ToHashSet();
+        Timer resetAttemptsTimer = new Timer(ResetLoginAttempts, null, TimeSpan.Zero, TimeSpan.FromDays(1));
     }
     public string userFilePath = "user.txt";
     public string pwdFilePath = "pwd.txt";
@@ -64,10 +67,6 @@ public partial class Server
         if (!File.Exists(logFilePath))
         {
             using (File.Create(logFilePath)) { }
-        }
-        if (!File.Exists(psxrcfgPath))
-        {
-            using (File.Create(psxrcfgPath)) { }
         }
         if (!File.Exists(searchFilePath))
         {
@@ -85,6 +84,14 @@ public partial class Server
         {
             using (File.Create(whiteListFilePath)) { }
         }
+        if (!File.Exists(userFilePath))
+        {
+            using (File.Create(userFilePath)) { }
+        }
+        if (!File.Exists(pwdFilePath))
+        {
+            using (File.Create(pwdFilePath)) { }
+        }
         stopwatch.Stop();
         TimeSpan elapsed = stopwatch.Elapsed;
         Log($"Server started. [{elapsed.TotalMilliseconds} ms]");
@@ -100,10 +107,6 @@ public partial class Server
             {
                 using (File.Create(logFilePath)) { }
             }
-            if (!File.Exists(psxrcfgPath))
-            {
-                using (File.Create(psxrcfgPath)) { }
-            }
             if (!File.Exists(searchFilePath))
             {
                 using (File.Create(searchFilePath)) { }
@@ -117,6 +120,14 @@ public partial class Server
             if (!File.Exists(whiteListFilePath))
             {
                 using (File.Create(whiteListFilePath)) { }
+            }
+            if (!File.Exists(userFilePath))
+            {
+                using (File.Create(userFilePath)) { }
+            }
+            if (!File.Exists(pwdFilePath))
+            {
+                using (File.Create(pwdFilePath)) { }
             }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
@@ -157,15 +168,56 @@ public partial class Server
         int index = Array.IndexOf(users, username);
 
         if (index == -1)
-        {   //新用户逻辑
-
+        {   // 新用户逻辑
             File.AppendAllText(userFilePath, username + Environment.NewLine);
             File.AppendAllText(pwdFilePath, password + Environment.NewLine);
             return true;
         }
         else
-        {   //旧用户逻辑
-            return passwords[index] == password;
+        {   // 旧用户逻辑
+            if (passwords[index] == password)
+            {
+                // 登录成功，重置尝试次数
+                lock (lockObject)
+                {
+                    if (loginAttempts.ContainsKey(username))
+                    {
+                        loginAttempts[username] = 0;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                // 登录失败，增加尝试次数
+                lock (lockObject)
+                {
+                    if (!loginAttempts.ContainsKey(username))
+                    {
+                        loginAttempts[username] = 1;
+                        lastAttemptTime[username] = DateTime.Now;
+                    }
+                    else
+                    {
+                        if (DateTime.Now.Date != lastAttemptTime[username].Date)
+                        {
+                            // 如果是新的一天，重置尝试次数
+                            loginAttempts[username] = 1;
+                            lastAttemptTime[username] = DateTime.Now;
+                        }
+                        else
+                        {
+                            loginAttempts[username]++;
+                            if (loginAttempts[username] >= 10)
+                            {
+                                Log($"用户 '{username}' 因连续10次登录失败被锁定.");//防破解机制 联合pefender
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
         }
     }
     public bool IsUsernameAvailable(string username)
