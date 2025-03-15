@@ -57,33 +57,6 @@ public partial class Client
                 tcpClient2.Connect(serverIP, serverPort);
                 clientStream = tcpClient2.GetStream();
             }
-            else
-            {
-                Console.WriteLine("我不说了，不要乱输入吗？qwq你不爱我了qwq");
-                Console.WriteLine("既然这样，那我就放炸弹!10秒倒计时!");
-                Thread.Sleep(1000);
-                Console.WriteLine("9秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("8秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("7秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("6秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("5秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("4秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("3秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("2秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("1秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("装逼我让你飞起来!");
-                Environment.Exit(-2147483648);
-                return;
-            }
 
             // 用户输入用户名，如果没有输入则使用计算机名称
             Console.Write("请输入用户名（按 Enter 使用计算机名, 空格会被忽略）: ");
@@ -95,7 +68,7 @@ public partial class Client
             {
                 username = username.Replace(" ", "");//删除空格
             }
-            
+
             usernamecpy = username;
 
             // 发送用户名到服务器
@@ -107,9 +80,8 @@ public partial class Client
             //检测是否有空格,有空格直接给他干了
             if (password.Contains(" "))
             {
-                    password = password.Replace(" ","");//删除空格
+                password = password.Replace(" ","");//删除空格
             }
-
 
             // 发送密码到服务器
             SendMessage(password);
@@ -208,8 +180,14 @@ public partial class Client
         {
             clientcpy = client;
         }
-        public string Name { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string Name {
+            get;
+            set;
+        } = null!;
+        public string Description {
+            get;
+            set;
+        } = null!;
         public void Start()
         {
             // Console.WriteLine();
