@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("losefchat")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bcdbe894343812efadc8846d31c12bfcb4c8da95")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+19dbbb500ece8a083b25d558e5a168c12aeca2c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("losefchat")]
 [assembly: System.Reflection.AssemblyTitleAttribute("losefchat")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

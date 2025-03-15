@@ -1,221 +1,16 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Threading;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 
-//Mod : Client, Des.: LC原版客户端核心类模组
-class Client
-{
-    public TcpClient tcpClient;
-    public TcpClient tcpClient2;
-    public NetworkStream clientStream;
-    public string logFilePath = "logclient.txt"; // Log file path
-    public StreamWriter logFile;
-    public string usernamecpy = "";
-
-    public Client()
-    {
-        // 确保日志文件存在
-        if (!File.Exists(logFilePath))
-        {
-            using (File.Create(logFilePath)) { }
-        }
-        // 初始化 StreamWriter
-        logFile = new StreamWriter(logFilePath, true);
-    }
-
-    ~Client()
-    {
-        // 关闭 StreamWriter
-        logFile?.Close();
-    }
-
-    public void Log(string message)
-    {
-        logFile.WriteLine($"{DateTime.Now}: {message}");
-        logFile.Flush();
-    }
-
-    public void Connect(int ipvx, string serverIP, int serverPort)
-    {
-        try
-        {
-            tcpClient = new TcpClient();
-            tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
-
-            if (ipvx == 4)
-            {
-                tcpClient.Connect(serverIP, serverPort);
-                clientStream = tcpClient.GetStream();
-            }
-            else if (ipvx == 6)
-            {
-                tcpClient2.Connect(serverIP, serverPort);
-                clientStream = tcpClient2.GetStream();
-            }
-            else
-            {
-                Console.WriteLine("我不说了，不要乱输入吗？qwq你不爱我了qwq");
-                Console.WriteLine("既然这样，那我就放炸弹!10秒倒计时!");
-                Thread.Sleep(1000);
-                Console.WriteLine("9秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("8秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("7秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("6秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("5秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("4秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("3秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("2秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("1秒后爆炸");
-                Thread.Sleep(1000);
-                Console.WriteLine("装逼我让你飞起来!");
-                Environment.Exit(-2147483648);
-                return;
-            }
-
-            // 用户输入用户名，如果没有输入则使用计算机名称
-            Console.Write("请输入用户名（按 Enter 使用计算机名）: ");
-            string username = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(username))
-                username = Environment.MachineName;
-
-            usernamecpy = username;
-
-            // 发送用户名到服务器
-            SendMessage(username);
-
-            // 用户输入密码
-            Console.Write("请输入密码: ");
-            string password = Console.ReadLine();
-
-            // 发送密码到服务器
-            SendMessage(password);
-
-            Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
-            receiveThread.Start();
-
-            // 显示连接成功提示信息
-            Console.WriteLine("已连接到服务器。输入 'exit' 以关闭客户端。");
-
-            while (true)
-            {
-                string message = Console.ReadLine();
-
-                if (message.ToLower() == "exit")
-                {
-                    SendMessage("我下线了啊拜拜");
-                    tcpClient.Close();
-                    break;
-                }
-
-                SendMessage(message);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log($"连接服务器时发生异常: {ex.Message}");
-        }
-    }
-
-    public void ReceiveMessage()
-    {
-        byte[] message = new byte[32567];
-        int bytesRead;
-
-        List<string> messages = new List<string>();
-        bool connectionMessageShown = false;
-
-        while (true)
-        {
-            bytesRead = 0;
-
-            try
-            {
-                bytesRead = clientStream.Read(message, 0, 32567);
-            }
-            catch
-            {
-                break;
-            }
-
-            if (bytesRead == 0)
-                break;
-
-            string data = Encoding.UTF8.GetString(message, 0, bytesRead);
-            messages.Add($"\a{DateTime.Now} > {data}");
-            string logtmp = $"{DateTime.Now} > {data}";
-            Log(logtmp);
-            // 清除控制台并重新打印所有消息
-            Console.Clear();
-            foreach (var msg in messages)
-            {
-                Console.WriteLine(msg);
-            }
-
-            if (!connectionMessageShown)
-            {
-                Console.WriteLine($"已连接到服务器。输入 'exit' 以关闭客户端。");
-                Log($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
-                connectionMessageShown = true;
-            }
-        }
-    }
-
-    public void SendMessage(string message)
-    {
-        byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-        clientStream.Write(messageBytes, 0, messageBytes.Length);
-        clientStream.Flush();
-    }
-
-    // Mod开发区域
-    // 以下空间供Mod的开发
-    // Mod开发规则:
-    // 一个mod只能使用一个Class,Class名称必须为mod名称
-    // Mod必须要有一个构造函数,构造函数必须要有一个Client/Server形参,并且在模组类内部创建一个和形参同等类型的对象
-    // 使这个内部对象和实参(形参)完全一样
-    // 必须为public类
-
-    // Mod : mod, Des.: 简易模组示例
-    public class mod
-    {
-        public Client clientcpy;
-        public mod(Client client) {
-            Thread a = new Thread(() => {
-                while(true) clientcpy = client;
-            });
-            a.Start();
-        }
-        public string Name {
-            get;
-            set;
-        }
-        public string Description {
-            get;
-            set;
-        }
-        public void Start()
-        {
-            // Console.WriteLine();
-        }
-    }
-}
-
 // Mod : Server, Des.: LC原版服务端核心类模组
-class Server
+// Part : Server主部分
+public partial class Server
 {
     public TcpListener tcpListener;
     public List<ClientInfo> clientList = new List<ClientInfo>();
@@ -230,20 +25,23 @@ class Server
 
     public Server(int port)
     {
-        tcpListener = new TcpListener(IPAddress.Any, port);
-
-        // Create log file if it doesn't exist
+        if (!File.Exists(userFilePath))
+        {
+            using (File.Create(userFilePath)) { }
+        }
+        if (!File.Exists(pwdFilePath))
+        {
+            using (File.Create(pwdFilePath)) { }
+        }
         if (!File.Exists(logFilePath))
         {
             using (File.Create(logFilePath)) { }
         }
-        // Create search results file if it doesn't exist
         if (!File.Exists(searchFilePath))
         {
             using (File.Create(searchFilePath)) { }
         }
 
-        // Create or read banned users file
         if (!File.Exists(bannedUsersFilePath))
         {
             using (File.Create(bannedUsersFilePath)) { }
@@ -256,13 +54,48 @@ class Server
             using (File.Create(whiteListFilePath)) { }
         }
         whiteListSet = File.ReadAllLines(whiteListFilePath).ToHashSet();
+        Timer resetAttemptsTimer = new Timer(ResetLoginAttempts, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+        tcpListener = new TcpListener(IPAddress.Any, port);
     }
     public string userFilePath = "user.txt";
     public string pwdFilePath = "pwd.txt";
 
     public void Start()
     {
-        Log("Server started.");
+        Log("Server loading...");
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        if (!File.Exists(logFilePath))
+        {
+            using (File.Create(logFilePath)) { }
+        }
+        if (!File.Exists(searchFilePath))
+        {
+            using (File.Create(searchFilePath)) { }
+        }
+
+        if (!File.Exists(bannedUsersFilePath))
+        {
+            using (File.Create(bannedUsersFilePath)) { }
+        }
+        bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
+
+        // Create or read white list file
+        if (!File.Exists(whiteListFilePath))
+        {
+            using (File.Create(whiteListFilePath)) { }
+        }
+        if (!File.Exists(userFilePath))
+        {
+            using (File.Create(userFilePath)) { }
+        }
+        if (!File.Exists(pwdFilePath))
+        {
+            using (File.Create(pwdFilePath)) { }
+        }
+        stopwatch.Stop();
+        TimeSpan elapsed = stopwatch.Elapsed;
+        Log($"Server started. [{elapsed.TotalMilliseconds} ms]");
 
         tcpListener.Start();
 
@@ -271,6 +104,32 @@ class Server
 
         while (true)
         {
+            if (!File.Exists(logFilePath))
+            {
+                using (File.Create(logFilePath)) { }
+            }
+            if (!File.Exists(searchFilePath))
+            {
+                using (File.Create(searchFilePath)) { }
+            }
+
+            if (!File.Exists(bannedUsersFilePath))
+            {
+                using (File.Create(bannedUsersFilePath)) { }
+            }
+            // Create or read white list file
+            if (!File.Exists(whiteListFilePath))
+            {
+                using (File.Create(whiteListFilePath)) { }
+            }
+            if (!File.Exists(userFilePath))
+            {
+                using (File.Create(userFilePath)) { }
+            }
+            if (!File.Exists(pwdFilePath))
+            {
+                using (File.Create(pwdFilePath)) { }
+            }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
             byte[] usernameBytes = new byte[32567];
@@ -304,14 +163,19 @@ class Server
 
     private bool IsUserValid(string username, string password)
     {
-        if (!File.Exists(userFilePath))
+        // 检查用户是否被锁定
+        if (lockedUsers.ContainsKey(username))
         {
-            using (File.Create(userFilePath)) { }
-        }
-
-        if (!File.Exists(pwdFilePath))
-        {
-            using (File.Create(pwdFilePath)) { }
+            if (DateTime.Now.Date == lockedUsers[username].Date)
+            {
+                Log($"用户在之前'{username}' 因连续1次登录失败被锁定.");
+                return false;
+            }
+            else
+            {
+                // 如果是新的一天，移除锁定状态
+                lockedUsers.Remove(username);
+            }
         }
 
         var users = File.ReadAllLines(userFilePath);
@@ -320,15 +184,57 @@ class Server
         int index = Array.IndexOf(users, username);
 
         if (index == -1)
-        {   //新用户逻辑
-
+        {   // 新用户逻辑
             File.AppendAllText(userFilePath, username + Environment.NewLine);
             File.AppendAllText(pwdFilePath, password + Environment.NewLine);
             return true;
         }
         else
-        {   //旧用户逻辑
-            return passwords[index] == password;
+        {   // 旧用户逻辑
+            if (passwords[index] == password)
+            {
+                // 登录成功，重置尝试次数
+                lock (lockObject)
+                {
+                    if (loginAttempts.ContainsKey(username))
+                    {
+                        loginAttempts[username] = 0;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                // 登录失败，增加尝试次数
+                lock (lockObject)
+                {
+                    if (!loginAttempts.ContainsKey(username))
+                    {
+                        loginAttempts[username] = 1;
+                        lastAttemptTime[username] = DateTime.Now;
+                    }
+                    else
+                    {
+                        if (DateTime.Now.Date != lastAttemptTime[username].Date)
+                        {
+                            // 如果是新的一天，重置尝试次数
+                            loginAttempts[username] = 0;
+                            lastAttemptTime[username] = DateTime.Now;
+                        }
+                        else
+                        {
+                            loginAttempts[username]++;
+                            if (loginAttempts[username] >= 1)
+                            {
+                                Log($"用户 '{username}' 因连续1次登录失败被锁定.");
+                                lockedUsers[username] = DateTime.Now;
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
         }
     }
     public bool IsUsernameAvailable(string username)
@@ -682,13 +588,11 @@ class Server
                 string username = input.Substring(14);
                 RemoveFromWhiteList(username);
             }
-
             else if (input.StartsWith("/usewl"))//开头有usewl
             {
                 isServerUseTheWhiteList = true;
                 Log("服务器已启用白名单模式.");
             }
-
             else if (input.StartsWith("/notwl"))//开头有notwl
             {
                 isServerUseTheWhiteList = false;
@@ -731,23 +635,29 @@ class Server
     }
 
     // Mod : ClientInfo, Des.: 原版含有的模组,用于存储客户端信息的核心类, Server前置模组
-public class ClientInfo
-{
-    public TcpClient TcpClient { get; set; }
-    private string _connectionMessage;
-
-    public string ConnectionMessage
+    public class ClientInfo
     {
-        get => _connectionMessage;
-        set
+        public TcpClient TcpClient {
+            get;
+            set;
+        }
+        private string _connectionMessage;
+
+        public string ConnectionMessage
         {
-            _connectionMessage = value;
-            Username = _connectionMessage.Split(':')[0];
+            get => _connectionMessage;
+            set
+            {
+                _connectionMessage = value;
+                Username = _connectionMessage.Split(':')[0];
+            }
+        }
+
+        public string Username {
+            get;
+            set;
         }
     }
-
-    public string Username { get;set; }
-}
 
     //Mod开发区域
     //以下区域供Mod的开发
@@ -778,71 +688,6 @@ public class ClientInfo
         public void Start()
         {
             // Console.WriteLine();
-        }
-    }
-}
-
-// Mod : 程序, Des.: LC主程序类模组,包含模式选择、启动、模组加载基本重要功能
-class 程序
-{
-    static void Main()
-    {
-        Console.WriteLine("欢迎使用LosefChat v1.0.r2.b46\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
-
-        int choose = int.Parse(Console.ReadLine());
-        if (choose == 1)
-        {
-            Console.Write("你要用ipv4协议，还是用ipv6协议？(输入4或者6,乱输我们就要把你请出去了哦awa):");
-            int 选择 = int.Parse(Console.ReadLine());
-
-            Console.Write("请输入服务器 IP 地址: ");
-            string 服务器IP = Console.ReadLine();
-
-            Console.Write("请输入服务器端口号: ");
-            int 服务器端口号 = int.Parse(Console.ReadLine());
-
-            Client 客户端 = new Client();
-
-            // 模组加载区域
-            // 在这里加载模组
-            // 下为简易示例,服务端模式相同操作
-            Client.mod is_a_mod = new Client.mod(客户端);//<<< 必须要在参数表(括号)中加入它对应运行模式的对应类的已声明实例
-            Thread modthread = new Thread(() =>
-            {
-                is_a_mod.Start();
-            });
-            modthread.Start();
-            // 必须要使用一个线程来加载模组
-            // 照这个例子，结合模组作者的文档在下面加载模组
-
-            // 模组加载区域结束
-
-            客户端.Connect(选择, 服务器IP, 服务器端口号);
-        }
-        if (choose == 2)
-        {
-            Console.Write("请输入服务器端口号: ");
-            int 端口 = int.Parse(Console.ReadLine());
-
-            Server 服务器 = new Server(端口);
-
-            // 模组加载区域
-            // 在这里加载模组
-            // 下为简易示例
-            Server.mod is_a_mod = new Server.mod(服务器);//<<< 必须要在参数表(括号)中加入它对应运行模式的对应类的已声明实例
-            Thread modthread = new Thread(() =>
-            {
-                is_a_mod.Start();
-            });// 必须要使用一个线程来加载模组
-            // 照这个例子，结合模组作者的文档在下面加载模组
-
-            // 模组加载区域结束
-
-            服务器.Start();
-        }
-        if (choose == 3)
-        {
-            Environment.Exit(0);
         }
     }
 }

@@ -117,3 +117,31 @@ cd Debug
 # 进入对应版本目录，例如 net5.0
 ./losefchat
 ```
+
+---
+
+## 贡献&Git规范标准
+
+CMTMSG规范
+
+- 需要先创建当前要做的内容的计划issues, 这个issues可以是需要修复的、更新计划、功能添加
+- 当做完这些内容/做了新内容的其中一部分/修改新内容的部分/修复一些bug/合并, 按情况分别提交cmtmsg:
+  - Add for #x : xxxxxxx
+  - Add part for #x : xxxxxxx
+  - Update for #x : xxxxxxx
+  - Fix in #x : xxxxxxx
+  - Merge branch xx(branchname) : For #x
+
+Release & tag信息规范
+
+- 请使用WVPB版本号规则
+- tag无需标注
+- Release标题为版本号
+- Release描述需用MD格式
+- Release描述需按照以下格式进行编写:
+
+  ```
+  本次更新:
+  -----
+  - (本次阶段的所有CMTMSG)
+  ```
