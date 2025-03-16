@@ -12,7 +12,7 @@ class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v1.1.r1.b105\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v1.1.r1.b107\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
 
         if (!int.TryParse(Console.ReadLine(), out int choose))
         {
