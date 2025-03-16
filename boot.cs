@@ -12,7 +12,7 @@ class 程序
 {
     static void Main()
     {
-        Console.WriteLine("欢迎使用LosefChat v1.1.d1.b96\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
+        Console.WriteLine("欢迎使用LosefChat v1.1.d1.b98\n输入1 开始聊天,输入2 服务器,输入3 EXIT");
 
         if (!int.TryParse(Console.ReadLine(), out int choose))
         {
@@ -22,27 +22,6 @@ class 程序
 
         if (choose == 1)
         {
-            Console.Write("你要用ipv4协议，还是用ipv6协议？(输入4或者6,乱输我们就要把你请出去了哦awa):");
-            if (!int.TryParse(Console.ReadLine(), out int 选择))
-            {
-                Console.WriteLine("无效输入，请输入4或6。");
-                return;
-            }
-
-            Console.Write("请输入服务器 IP 地址: ");
-            string 服务器IP = Console.ReadLine();
-            if (string.IsNullOrEmpty(服务器IP))
-            {
-                Console.WriteLine("无效的IP地址。");
-                return;
-            }
-
-            Console.Write("请输入服务器端口号: ");
-            if (!int.TryParse(Console.ReadLine(), out int 服务器端口号))
-            {
-                Console.WriteLine("无效的端口号。");
-                return;
-            }
 
             Client 客户端 = new Client();
 
@@ -60,7 +39,10 @@ class 程序
 
             // 模组加载区域结束
 
-            客户端.Connect(选择, 服务器IP, 服务器端口号);
+            Preset preset = new Preset();
+            preset.ReadPreset();
+
+            客户端.Connect(preset.ipvx, preset.ip, preset.port , preset.username, preset.password);
         }
         else if (choose == 2)
         {
