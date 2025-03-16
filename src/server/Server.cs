@@ -47,8 +47,6 @@ public partial class Server
             using (File.Create(bannedUsersFilePath)) { }
         }
         bannedUsersSet = File.ReadAllLines(bannedUsersFilePath).ToHashSet();
-
-        // Create or read white list file
         if (!File.Exists(whiteListFilePath))
         {
             using (File.Create(whiteListFilePath)) { }
@@ -95,7 +93,7 @@ public partial class Server
         }
         stopwatch.Stop();
         TimeSpan elapsed = stopwatch.Elapsed;
-        Log($"Server started. [{elapsed.TotalMilliseconds} ms]");
+        Log($"Server started. [{elapsed.TotalMilliseconds} s]");
 
         tcpListener.Start();
 
