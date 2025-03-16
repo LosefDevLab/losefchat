@@ -162,7 +162,14 @@ public partial class Server
         ClientInfo clientInfo = (ClientInfo)clientInfoObj;
         TcpClient tcpClient = clientInfo.TcpClient;
         //封禁用户检测机制
-        if (bannedUsersSet.Contains(clientInfo.Username)) tcpClient.Close();
+        if (bannedUsersSet.Contains(clientInfo.Username)) 
+        {
+            
+            Log($"用户 '{clientInfo.Username}' 被封禁, 无法连接.");
+            SendMessage(clientInfo, $"你 '{clientInfo.Username}' 被封禁, 无法连接.");
+            Thread.Sleep(500);
+            tcpClient.Close();
+        }
         NetworkStream clientStream = tcpClient.GetStream();
 
         Log($"用户 '{clientInfo.Username}' 连接到服务器.");
