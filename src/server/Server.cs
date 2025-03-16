@@ -55,8 +55,6 @@ public partial class Server
         Timer resetAttemptsTimer = new Timer(ResetLoginAttempts, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         tcpListener = new TcpListener(IPAddress.Any, port);
     }
-    public string userFilePath = "user.txt";
-    public string pwdFilePath = "pwd.txt";
 
     public void Start()
     {
@@ -159,90 +157,6 @@ public partial class Server
         }
     }
 
-    private bool IsUserValid(string username, string password)
-    {
-        // 检查用户是否被锁定
-        if (lockedUsers.ContainsKey(username))
-        {
-            if (DateTime.Now.Date == lockedUsers[username].Date)
-            {
-                Log($"用户在之前'{username}' 因连续1次登录失败被锁定.");
-                return false;
-            }
-            else
-            {
-                // 如果是新的一天，移除锁定状态
-                lockedUsers.Remove(username);
-            }
-        }
-
-        var users = File.ReadAllLines(userFilePath);
-        var passwords = File.ReadAllLines(pwdFilePath);
-
-        int index = Array.IndexOf(users, username);
-
-        if (index == -1)
-        {   // 新用户逻辑
-            File.AppendAllText(userFilePath, username + Environment.NewLine);
-            File.AppendAllText(pwdFilePath, password + Environment.NewLine);
-            return true;
-        }
-        else
-        {   // 旧用户逻辑
-            if (passwords[index] == password)
-            {
-                // 登录成功，重置尝试次数
-                lock (lockObject)
-                {
-                    if (loginAttempts.ContainsKey(username))
-                    {
-                        loginAttempts[username] = 0;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                // 登录失败，增加尝试次数
-                lock (lockObject)
-                {
-                    if (!loginAttempts.ContainsKey(username))
-                    {
-                        loginAttempts[username] = 1;
-                        lastAttemptTime[username] = DateTime.Now;
-                    }
-                    else
-                    {
-                        if (DateTime.Now.Date != lastAttemptTime[username].Date)
-                        {
-                            // 如果是新的一天，重置尝试次数
-                            loginAttempts[username] = 0;
-                            lastAttemptTime[username] = DateTime.Now;
-                        }
-                        else
-                        {
-                            loginAttempts[username]++;
-                            if (loginAttempts[username] >= 1)
-                            {
-                                Log($"用户 '{username}' 因连续1次登录失败被锁定.");
-                                lockedUsers[username] = DateTime.Now;
-                                return false;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-    }
-    public bool IsUsernameAvailable(string username)
-    {
-        lock (lockObject)
-        {
-            return !clientList.Exists(c => c.Username == username);
-        }
-    }
-
     public void HandleClientCommunication(object clientInfoObj)
     {
         ClientInfo clientInfo = (ClientInfo)clientInfoObj;
@@ -272,8 +186,16 @@ public partial class Server
 
             string data = Encoding.UTF8.GetString(messageBytes, 0, bytesRead);
 
-            // Broadcast message to all clients
-            BroadcastMessage($"{clientInfo.Username}: {data}");
+            // 检查用户是否被禁言
+            if (mutedUsersSet.Contains(clientInfo.Username))
+            {
+                // 忽略被禁言用户的消息
+                SendMessage(clientInfo, "你已被禁言，无法发送消息！");
+                continue;
+            }
+
+            // 广播消息到所有客户端
+            BroadcastMessage($"{clientInfo.Username}: {data}", clientInfo.Username);
         }
 
         Console.WriteLine("用户 '" + clientInfo.Username + "' 下线了.");
@@ -285,7 +207,7 @@ public partial class Server
         tcpClient.Close();
     }
 
-    public void BroadcastMessage(string message)
+    public void BroadcastMessage(string message, string senderUsername = "")
     {
         byte[] broadcastBytes = Encoding.UTF8.GetBytes(message);
 
@@ -293,13 +215,19 @@ public partial class Server
         {
             foreach (var client in clientList)
             {
+                // 如果发送者是被禁言用户，则跳过广播其消息
+                if (client.Username == senderUsername && mutedUsersSet.Contains(senderUsername))
+                {
+                    continue;
+                }
+
                 NetworkStream clientStream = client.TcpClient.GetStream();
                 clientStream.Write(broadcastBytes, 0, broadcastBytes.Length);
                 clientStream.Flush();
             }
         }
 
-        // Log the broadcasted message to the log file
+        // 记录广播消息到日志文件
         Log(message);
     }
 
@@ -552,46 +480,56 @@ public partial class Server
         {
             string input = Console.ReadLine();
 
-            if (input.StartsWith("/kick"))//开头有kick
+            if (input.StartsWith("/kick"))
             {
-                string targetUsername = input.Split(' ')[1];//
+                string targetUsername = input.Split(' ')[1];
                 KickUser(targetUsername);
             }
-            else if (input.StartsWith("/ban"))//开头有ban
+            else if (input.StartsWith("/ban"))
             {
                 string targetUsername = input.Split(' ')[1];
                 BanUser(targetUsername);
             }
-            else if (input.StartsWith("/unban"))//开头有unban
+            else if (input.StartsWith("/unban"))
             {
                 string targetUsername = input.Split(' ')[1];
                 UnbanUser(targetUsername);
             }
-            else if (input.StartsWith("/users"))//开头有users
+            else if (input.StartsWith("/mute")) // 禁言命令
+            {
+                string targetUsername = input.Split(' ')[1];
+                MuteUser(targetUsername);
+            }
+            else if (input.StartsWith("/unmute")) // 解禁言命令
+            {
+                string targetUsername = input.Split(' ')[1];
+                UnmuteUser(targetUsername);
+            }
+            else if (input.StartsWith("/users"))
             {
                 DisplayAllUsers();
             }
-            else if (input.StartsWith("/search"))//开头有search
+            else if (input.StartsWith("/search"))
             {
                 string searchKeyword = input.Substring(8);
                 SearchLog(searchKeyword);
             }
-            else if (input.StartsWith("/addwl"))//开头有addwl
+            else if (input.StartsWith("/addwl"))
             {
                 string username = input.Substring(10);
                 AddToWhiteList(username);
             }
-            else if (input.StartsWith("/rmwl"))//开头有rmwl
+            else if (input.StartsWith("/rmwl"))
             {
                 string username = input.Substring(14);
                 RemoveFromWhiteList(username);
             }
-            else if (input.StartsWith("/usewl"))//开头有usewl
+            else if (input.StartsWith("/usewl"))
             {
                 isServerUseTheWhiteList = true;
                 Log("服务器已启用白名单模式.");
             }
-            else if (input.StartsWith("/notwl"))//开头有notwl
+            else if (input.StartsWith("/notwl"))
             {
                 isServerUseTheWhiteList = false;
                 Log("服务器已关闭白名单模式.");

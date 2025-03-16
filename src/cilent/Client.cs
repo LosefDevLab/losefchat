@@ -40,7 +40,7 @@ public partial class Client
         logFile.Flush();
     }
 
-    public void Connect(int ipvx, string serverIP, int serverPort)
+    public void Connect(int ipvx, string serverIP, int serverPort, string username, string password)
     {
         try
         {
@@ -58,30 +58,10 @@ public partial class Client
                 clientStream = tcpClient2.GetStream();
             }
 
-            // 用户输入用户名，如果没有输入则使用计算机名称
-            Console.Write("请输入用户名（按 Enter 使用计算机名, 空格会被忽略）: ");
-            string username = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(username))
-                username = Environment.MachineName;
-            if (username.Contains(" "))
-            {
-                username = username.Replace(" ", "");//删除空格
-            }
-
-            usernamecpy = username;
-
             // 发送用户名到服务器
             SendMessage(username);
 
-            // 用户输入密码
-            Console.Write("请输入密码(空格会被忽略): ");
-            string password = Console.ReadLine();
-            //检测是否有空格,有空格直接给他干了
-            if (password.Contains(" "))
-            {
-                password = password.Replace(" ","");//删除空格
-            }
+            Thread.Sleep(100);
 
             // 发送密码到服务器
             SendMessage(password);
@@ -89,7 +69,7 @@ public partial class Client
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
-            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。输入 'exit' 以关闭客户端。");
+            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。\n或者是如果您的设置文件的第四行没有留空，那么您在首次加入服务器的时候需要\n输入 'exit' 以关闭客户端。");
 
             while (true)
             {
