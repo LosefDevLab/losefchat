@@ -61,13 +61,15 @@ public partial class Client
             // 发送用户名到服务器
             SendMessage(username);
 
+            Thread.Sleep(100);
+
             // 发送密码到服务器
             SendMessage(password);
 
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
-            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。\n或者是如果您的设置文件的第四行没有留空，那么您在首次加入服务器的时候需要退出再重进\n输入 'exit' 以关闭客户端。");
+            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。\n或者是如果您的设置文件的第四行没有留空，那么您在首次加入服务器的时候需要\n输入 'exit' 以关闭客户端。");
 
             while (true)
             {

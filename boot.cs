@@ -39,8 +39,14 @@ class 程序
 
             // 模组加载区域结束
 
+            Console.WriteLine("请选择预设文件:");
+            if (!int.TryParse(Console.ReadLine(), out int PresetChoose))
+            {
+                Console.WriteLine("无效输入，请输入一个数字");
+            }
+
             Preset preset = new Preset();
-            preset.ReadPreset();
+            preset.ReadPreset(PresetChoose);
 
             客户端.Connect(preset.ipvx, preset.ip, preset.port , preset.username, preset.password);
         }
