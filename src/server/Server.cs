@@ -161,6 +161,8 @@ public partial class Server
     {
         ClientInfo clientInfo = (ClientInfo)clientInfoObj;
         TcpClient tcpClient = clientInfo.TcpClient;
+        //封禁用户检测机制
+        if (bannedUsersSet.Contains(clientInfo.Username)) tcpClient.Close();
         NetworkStream clientStream = tcpClient.GetStream();
 
         Log($"用户 '{clientInfo.Username}' 连接到服务器.");
