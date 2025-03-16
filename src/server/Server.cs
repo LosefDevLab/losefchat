@@ -56,7 +56,6 @@ public partial class Server
         tcpListener = new TcpListener(IPAddress.Any, port);
     }
 
-
     public void Start()
     {
         Log("Server loading...");
@@ -187,8 +186,16 @@ public partial class Server
 
             string data = Encoding.UTF8.GetString(messageBytes, 0, bytesRead);
 
-            // Broadcast message to all clients
-            BroadcastMessage($"{clientInfo.Username}: {data}");
+            // 检查用户是否被禁言
+            if (mutedUsersSet.Contains(clientInfo.Username))
+            {
+                // 忽略被禁言用户的消息
+                SendMessage(clientInfo, "你已被禁言，无法发送消息！");
+                continue;
+            }
+
+            // 广播消息到所有客户端
+            BroadcastMessage($"{clientInfo.Username}: {data}", clientInfo.Username);
         }
 
         Console.WriteLine("用户 '" + clientInfo.Username + "' 下线了.");
@@ -200,7 +207,7 @@ public partial class Server
         tcpClient.Close();
     }
 
-    public void BroadcastMessage(string message)
+    public void BroadcastMessage(string message, string senderUsername = "")
     {
         byte[] broadcastBytes = Encoding.UTF8.GetBytes(message);
 
@@ -208,13 +215,19 @@ public partial class Server
         {
             foreach (var client in clientList)
             {
+                // 如果发送者是被禁言用户，则跳过广播其消息
+                if (client.Username == senderUsername && mutedUsersSet.Contains(senderUsername))
+                {
+                    continue;
+                }
+
                 NetworkStream clientStream = client.TcpClient.GetStream();
                 clientStream.Write(broadcastBytes, 0, broadcastBytes.Length);
                 clientStream.Flush();
             }
         }
 
-        // Log the broadcasted message to the log file
+        // 记录广播消息到日志文件
         Log(message);
     }
 
@@ -467,46 +480,56 @@ public partial class Server
         {
             string input = Console.ReadLine();
 
-            if (input.StartsWith("/kick"))//开头有kick
+            if (input.StartsWith("/kick"))
             {
-                string targetUsername = input.Split(' ')[1];//
+                string targetUsername = input.Split(' ')[1];
                 KickUser(targetUsername);
             }
-            else if (input.StartsWith("/ban"))//开头有ban
+            else if (input.StartsWith("/ban"))
             {
                 string targetUsername = input.Split(' ')[1];
                 BanUser(targetUsername);
             }
-            else if (input.StartsWith("/unban"))//开头有unban
+            else if (input.StartsWith("/unban"))
             {
                 string targetUsername = input.Split(' ')[1];
                 UnbanUser(targetUsername);
             }
-            else if (input.StartsWith("/users"))//开头有users
+            else if (input.StartsWith("/mute")) // 禁言命令
+            {
+                string targetUsername = input.Split(' ')[1];
+                MuteUser(targetUsername);
+            }
+            else if (input.StartsWith("/unmute")) // 解禁言命令
+            {
+                string targetUsername = input.Split(' ')[1];
+                UnmuteUser(targetUsername);
+            }
+            else if (input.StartsWith("/users"))
             {
                 DisplayAllUsers();
             }
-            else if (input.StartsWith("/search"))//开头有search
+            else if (input.StartsWith("/search"))
             {
                 string searchKeyword = input.Substring(8);
                 SearchLog(searchKeyword);
             }
-            else if (input.StartsWith("/addwl"))//开头有addwl
+            else if (input.StartsWith("/addwl"))
             {
                 string username = input.Substring(10);
                 AddToWhiteList(username);
             }
-            else if (input.StartsWith("/rmwl"))//开头有rmwl
+            else if (input.StartsWith("/rmwl"))
             {
                 string username = input.Substring(14);
                 RemoveFromWhiteList(username);
             }
-            else if (input.StartsWith("/usewl"))//开头有usewl
+            else if (input.StartsWith("/usewl"))
             {
                 isServerUseTheWhiteList = true;
                 Log("服务器已启用白名单模式.");
             }
-            else if (input.StartsWith("/notwl"))//开头有notwl
+            else if (input.StartsWith("/notwl"))
             {
                 isServerUseTheWhiteList = false;
                 Log("服务器已关闭白名单模式.");
