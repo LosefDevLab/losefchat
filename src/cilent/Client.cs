@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security; // 引入SslStream所在的命名空间
 
 // Mod : Client, Des.: LC原版客户端核心类模组
 // Part : Client主部分
@@ -12,7 +13,7 @@ public partial class Client
 {
     public TcpClient? tcpClient;
     public TcpClient? tcpClient2;
-    public NetworkStream? clientStream;
+    public SslStream? sslStream; // 使用SslStream代替NetworkStream
     public string logFilePath = "logclient.txt"; // Log file path
     public StreamWriter logFile;
     public string usernamecpy = "";
@@ -50,21 +51,22 @@ public partial class Client
             if (ipvx == 4)
             {
                 tcpClient.Connect(serverIP, serverPort);
-                clientStream = tcpClient.GetStream();
+                sslStream = SafeCommunication.AuthenticateClient(tcpClient, serverIP);
+                
             }
             else if (ipvx == 6)
             {
                 tcpClient2.Connect(serverIP, serverPort);
-                clientStream = tcpClient2.GetStream();
+                sslStream = SafeCommunication.AuthenticateClient(tcpClient2, serverIP);
             }
 
             // 发送用户名到服务器
-            SendMessage(username);
+            SafeCommunication.SendMessage(sslStream, username);
 
             Thread.Sleep(100);
 
             // 发送密码到服务器
-            SendMessage(password);
+            SafeCommunication.SendMessage(sslStream, password);
 
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
@@ -77,12 +79,12 @@ public partial class Client
 
                 if (message.ToLower() == "exit")
                 {
-                    SendMessage("我下线了啊拜拜");
+                    SafeCommunication.SendMessage(sslStream, "我下线了啊拜拜");
                     tcpClient?.Close();
                     break;
                 }
 
-                SendMessage(message);
+                SafeCommunication.SendMessage(sslStream, message);
             }
         }
         catch (Exception ex)
@@ -105,7 +107,7 @@ public partial class Client
 
             try
             {
-                bytesRead = clientStream?.Read(message, 0, 32567) ?? 0;
+                bytesRead = sslStream?.Read(message, 0, 32567) ?? 0;
             }
             catch
             {
@@ -115,7 +117,7 @@ public partial class Client
             if (bytesRead == 0)
                 break;
 
-            string data = Encoding.UTF8.GetString(message, 0, bytesRead);
+            string data = SafeCommunication.DecryptMessage(message, bytesRead);
             messages.Add($"\a{DateTime.Now} > {data}");
             string logtmp = $"{DateTime.Now} > {data}";
             Log(logtmp);
@@ -133,15 +135,6 @@ public partial class Client
                 connectionMessageShown = true;
             }
         }
-    }
-
-    public void SendMessage(string message)
-    {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-        clientStream?.Write(messageBytes, 0, messageBytes.Length);
-        clientStream?.Flush();
     }
 
     // Mod开发区域

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 
 // Mod : Server, Des.: LC原版服务端核心类模组
 // Part : Server主部分
@@ -127,6 +128,7 @@ public partial class Server
                 using (File.Create(pwdFilePath)) { }
             }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
+            SslStream sslStream = SafeCommunication.AuthenticateServer(tcpClient);
 
             byte[] usernameBytes = new byte[32567];
             int usernameBytesRead = tcpClient.GetStream().Read(usernameBytes, 0, 32567);

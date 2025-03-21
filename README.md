@@ -109,7 +109,7 @@ LosefChat 提供了强大的模组支持功能：
 
 ## 如何编译？
 
-请确保已安装 `dotnet` 和 `git`（版本 >= 5.0），然后按照以下步骤操作：
+请确保已安装 `dotnet` （版本 >= 8.0）、`openssl`（版本 >= 3.0）和 `git`，然后按照以下步骤操作：
 
 ```bash
 git clone https://github.com/LosefDevLab/losefchat.git
@@ -117,7 +117,15 @@ cd losefchat
 dotnet build
 cd bin
 cd Debug
-# 进入对应版本目录，例如 net5.0
+cd net8.0
+# 以下内容，仅服务端需要操作
+openssl genpkey -algorithm RSA -out sfc.key -aes256
+openssl req -new -key sfc.key -out sfc.csr
+openssl x509 -req -days 365 -in sfc.csr -signkey sfc.key -out sfc.crt
+# 此处仅为演示, 实际建议使用可靠的签名, 否则早晚被破解
+# 微软40块钱一份的签名它不香吗？
+# 以上内容仅服务端需要操作, 客户端需要在程序同目录下提供服务器的安全通讯证书
+openssl pkcs12 -export -out sfc.pfx -inkey sfc.key -in sfc.crt
 ./losefchat
 ```
 

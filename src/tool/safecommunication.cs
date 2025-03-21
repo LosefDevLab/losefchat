@@ -1,25 +1,17 @@
-//2025/3/21 今晚加班 造福社区！
-// Mod : Server, Des.: LC原版安全通讯核心类模组
-// Part : SafeCommunication, Des.: 安全通讯模块
 using System;
 using System.Text;
-using System.Threading;
 using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+
 public static class SafeCommunication
 {
     private static X509Certificate GetServerCertificate()
     {
         // 这里需要加载你的服务器证书
         // 例如：
-        return new X509Certificate("sfc.pfx", "kkko_pppo_ccco_lllo_mmmo_aaao"+
+        return new X509Certificate("sfc.pfx", "kkko_pppo_ccco_lllo_mmmo_aaao" +
         "_bbbo_dddo_fffo_gggo_hhho_iioo_jjjo_kkko_lllo_mmmo_nnno_oooo_pppo_qqqo_rrro_ssso_ttto_uuuo_vvvo_wwwo_xxxo_yyyo_zzzo");
     }
 
