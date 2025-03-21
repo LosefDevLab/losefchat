@@ -48,7 +48,7 @@ class 程序
             Preset preset = new Preset();
             preset.ReadPreset(PresetChoose);
 
-            客户端.Connect(preset.ipvx, preset.ip, preset.port , preset.username, preset.password);
+            客户端.Connect(preset.ipvx, preset.ip, preset.port , preset.username, preset.password, preset.isSfc);
         }
         else if (choose == 2)
         {

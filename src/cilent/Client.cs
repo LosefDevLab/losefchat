@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Security; // 引入SslStream所在的命名空间
+using System.Net.Security;
 
 // Mod : Client, Des.: LC原版客户端核心类模组
 // Part : Client主部分
@@ -13,10 +13,12 @@ public partial class Client
 {
     public TcpClient? tcpClient;
     public TcpClient? tcpClient2;
-    public SslStream? sslStream; // 使用SslStream代替NetworkStream
+    public SslStream? sslStream;
+    public NetworkStream? clientStream;
     public string logFilePath = "logclient.txt"; // Log file path
     public StreamWriter logFile;
     public string usernamecpy = "";
+    private int issfc = 0;
 
     public Client()
     {
@@ -41,50 +43,69 @@ public partial class Client
         logFile.Flush();
     }
 
-    public void Connect(int ipvx, string serverIP, int serverPort, string username, string password)
+    public void Connect(int ipvx, string serverIP, int serverPort, string username, string password, int isSfc)
     {
         try
         {
+            issfc = isSfc;
             tcpClient = new TcpClient();
             tcpClient2 = new TcpClient(AddressFamily.InterNetworkV6);
 
-            if (ipvx == 4)
+            if (isSfc == 1)
             {
-                tcpClient.Connect(serverIP, serverPort);
-                sslStream = SafeCommunication.AuthenticateClient(tcpClient, serverIP);
-                
-            }
-            else if (ipvx == 6)
-            {
-                tcpClient2.Connect(serverIP, serverPort);
-                sslStream = SafeCommunication.AuthenticateClient(tcpClient2, serverIP);
-            }
 
-            // 发送用户名到服务器
-            SafeCommunication.SendMessage(sslStream, username);
-
-            Thread.Sleep(100);
-
-            // 发送密码到服务器
-            SafeCommunication.SendMessage(sslStream, password);
-
-            Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
-            receiveThread.Start();
-
-            Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。\n或者是如果您的设置文件的第四行没有留空，那么您在首次加入服务器的时候需要\n输入 'exit' 以关闭客户端。");
-
-            while (true)
-            {
-                string message = Console.ReadLine();
-
-                if (message.ToLower() == "exit")
+                if (ipvx == 4)
                 {
-                    SafeCommunication.SendMessage(sslStream, "我下线了啊拜拜");
-                    tcpClient?.Close();
-                    break;
+                    tcpClient.Connect(serverIP, serverPort);
+                    sslStream = SafeCommunication.AuthenticateClient(tcpClient, serverIP);
+
+                }
+                else if (ipvx == 6)
+                {
+                    tcpClient2.Connect(serverIP, serverPort);
+                    sslStream = SafeCommunication.AuthenticateClient(tcpClient2, serverIP);
                 }
 
-                SafeCommunication.SendMessage(sslStream, message);
+                // 发送用户名到服务器
+                SafeCommunication.SendMessage(sslStream, username);
+
+                Thread.Sleep(100);
+
+                // 发送密码到服务器
+                SafeCommunication.SendMessage(sslStream, password);
+
+                Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
+                receiveThread.Start();
+
+                Console.WriteLine("正在连接, 如您长时间看到这个界面, 则是要么是被封，要么是网络问题, 要么是密码防破解把你ban了。\n或者是如果您的设置文件的第四行没有留空，那么您在首次加入服务器的时候需要\n输入 'exit' 以关闭客户端。");
+
+                while (true)
+                {
+                    string message = Console.ReadLine();
+
+                    if (message.ToLower() == "exit")
+                    {
+                        SafeCommunication.SendMessage(sslStream, "我下线了啊拜拜");
+                        tcpClient?.Close();
+                        break;
+                    }
+
+                    SafeCommunication.SendMessage(sslStream, message);
+                }
+            }
+            else if(isSfc == 0)
+            {
+                if (ipvx == 4)
+                {
+                    tcpClient.Connect(serverIP, serverPort);
+                    clientStream = tcpClient.GetStream();
+                }
+                else if (ipvx == 6)
+                {
+                    tcpClient2.Connect(serverIP, serverPort);
+                    clientStream = tcpClient2.GetStream();
+                }
+
             }
         }
         catch (Exception ex)
@@ -116,26 +137,58 @@ public partial class Client
 
             if (bytesRead == 0)
                 break;
-
-            string data = SafeCommunication.DecryptMessage(message, bytesRead);
-            messages.Add($"\a{DateTime.Now} > {data}");
-            string logtmp = $"{DateTime.Now} > {data}";
-            Log(logtmp);
-            // 清除控制台并重新打印所有消息
-            Console.Clear();
-            foreach (var msg in messages)
+            if (issfc == 0)
             {
-                Console.WriteLine(msg);
+                string data = Encoding.UTF8.GetString(message, 0, bytesRead);
+
+                messages.Add($"\a{DateTime.Now} > {data}");
+                string logtmp = $"{DateTime.Now} > {data}";
+                Log(logtmp);
+                // 清除控制台并重新打印所有消息
+                Console.Clear();
+                foreach (var msg in messages)
+                {
+                    Console.WriteLine(msg);
+                }
+
+                if (!connectionMessageShown)
+                {
+                    Console.WriteLine($"已连接到服务器。输入 'exit' 以关闭客户端。");
+                    Log($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
+                    connectionMessageShown = true;
+                }
             }
-
-            if (!connectionMessageShown)
+            else if (issfc == 1)
             {
-                Console.WriteLine($"已连接到服务器。输入 'exit' 以关闭客户端。");
-                Log($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
-                connectionMessageShown = true;
+                string data = SafeCommunication.DecryptMessage(message, bytesRead);
+
+                messages.Add($"\a{DateTime.Now} > {data}");
+                string logtmp = $"{DateTime.Now} > {data}";
+                Log(logtmp);
+                // 清除控制台并重新打印所有消息
+                Console.Clear();
+                foreach (var msg in messages)
+                {
+                    Console.WriteLine(msg);
+                }
+                if (!connectionMessageShown)
+                {
+                    Console.WriteLine($"已连接到服务器。输入 'exit' 以关闭客户端。");
+                    Log($"我({usernamecpy})已连接到服务器。输入 'exit' 以关闭客户端。");
+                    connectionMessageShown = true;
+                }
             }
         }
     }
+    public void SendMessage(string message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+        clientStream?.Write(messageBytes, 0, messageBytes.Length);
+        clientStream?.Flush();
+    }
+
 
     // Mod开发区域
     // 以下空间供Mod的开发

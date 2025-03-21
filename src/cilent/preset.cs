@@ -18,6 +18,8 @@ public partial class Preset
     public string username;
     public string password;
 
+    public int isSfc;
+
     public string presetFilePath = "preset";
     public void ReadPreset(int preset) // 读取预设
     {
@@ -32,6 +34,7 @@ public partial class Preset
             Console.WriteLine("第三行:端口号");
             Console.WriteLine("第四行:用户名(空格会被忽略,下一项同,为空就使用计算机名称)");
             Console.WriteLine("第五行:密码");
+            Console.WriteLine("第六行:是否使用安全通信(0为不使用,1为使用)");
             Console.WriteLine("填写完之后,按任意键继续...");
             Console.ReadLine();
 
@@ -45,6 +48,8 @@ public partial class Preset
             port = int.Parse(lines[2]);
             username = lines[3];
             password = lines[4];
+            isSfc = int.Parse(lines[5]);
+
             if (string.IsNullOrEmpty(username))
             {
                 username = Environment.MachineName;

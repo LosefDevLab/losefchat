@@ -128,7 +128,8 @@ public partial class Server
                 using (File.Create(pwdFilePath)) { }
             }
             TcpClient tcpClient = tcpListener.AcceptTcpClient();
-            SslStream sslStream = SafeCommunication.AuthenticateServer(tcpClient);
+            //SslStream sslStream = SafeCommunication.AuthenticateServer(tcpClient);
+            //默认不运行上一行。当然在开设服务器的时候，也可以自行修改代码重新编译开启服务器安全通讯
 
             byte[] usernameBytes = new byte[32567];
             int usernameBytesRead = tcpClient.GetStream().Read(usernameBytes, 0, 32567);
