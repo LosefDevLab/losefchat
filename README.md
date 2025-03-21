@@ -1,16 +1,19 @@
 # LosefChat | 一款简易的 DotNet 本地聊天模块
 
-**CREATE BY XYLCS/XIT/LOSEFDEVLAB**
-
 主要开发：阿龙
 
+Copyright (C) 2025 LosefDevLab<br>
+Copyright (C) 2018-Now XYLCS/XIT<br>
+Copyright (C) 2019-2025 kakako Chat Community Studio(KCCS)<br>
+Copyright (C) 2024-2025 PPPO Technological Team(PTT)<br>
+
+以上合并称为 LosefChat开发团队<br>
+
+Losefchat (2025) by LosefChat开发团队 2025-Now freedom-create in XFCSTD.<br>
+
+XFCSTD PATH:/XFCSTD.license
+
 > **注意**：本项目需要自行编译，请参考文末的编译指南。
-
-龙你发癫啊 commit_message给你这么写迟早要完
-
----
-
-接下来的内容我（阿龙）会毫不余力的骂我自己
 
 ## 停止对 XSC 的开发
 
