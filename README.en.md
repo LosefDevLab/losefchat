@@ -54,7 +54,7 @@ Collectively referred to as the **LosefChat Development Team**
 **Graceful Disconnect**:
 
 - Input `exit` to send automated goodbye message.
-  *(Note: Most users still prefer closing console directly)*
+  *(but most users still prefer closing console directly)*
 
 ---
 
@@ -83,12 +83,12 @@ While servers like `kkko` and `pppo` still operate with XSC, we commit to improv
 
 - Unified server-client architecture
 - Enhanced filesystem optimization
-- Friendlier UI/UX
+- Friendlier UUE
 - Critical new features:
   - IPv4/IPv6 support
   - Advanced logging with search capability
   - Modular development framework
-  - Password protection (Fulfill a legacy request from one of our former partners...)
+  - Password protection (Fulfill a legacy request from one of once a good friend...)
 
 ---
 
@@ -139,7 +139,7 @@ openssl pkcs12 -export -out sfc.pfx -inkey sfc.key -in sfc.crt
 
 **Commit Message Format**:
 
-- Create JIRA ticket for feature/fix first
+- Create issues for feature/fix first
 - Use these prefixes:
   - `Add for #x: `
   - `Update for #x: `
@@ -149,7 +149,7 @@ openssl pkcs12 -export -out sfc.pfx -inkey sfc.key -in sfc.crt
 **Release Versioning**:
 
 - Follow WVPB versioning scheme
-- Untagged releases
+- You don't need to annotate the markupUntagged releases
 - MD-formatted release notes:
   ```markdown
   ## [Version] Release Notes
