@@ -9,9 +9,9 @@ Copyright (C) 2024-2025 PPPO Technological Team(PTT)<br>
 
 以上合并称为 LosefChat开发团队<br>
 
-Losefchat (2025) by LosefChat开发团队 2025-Now freedom-create in XFCSTD.<br>
+Losefchat (2025) by LosefChat开发团队 2025-Now freedom-create in XFCSTD2.<br>
 
-XFCSTD PATH:/XFCSTD.license
+XFCSTD PATH:/XFCSTD2.md
 
 > **注意**：本项目需要自行编译，请参考文末的编译指南。<br>
 >
