@@ -76,7 +76,7 @@ We officially discontinue XShChat (XSC) development to create a new generation c
 - Severe version control chaos
 - Incomplete feature set
 - Months-long stagnation
-- Closed-source development practices
+- The open source repo is not updated for a long time
 - Poor user experience leading to third-party alternatives
 
 While servers like `kkko` and `pppo` still operate with XSC, we commit to improving through:
